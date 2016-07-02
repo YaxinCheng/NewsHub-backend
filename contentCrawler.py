@@ -24,6 +24,7 @@ class contentCrawler:
 			news.content = self.__content()
 		if img == True:
 			news.img = self.__image()
+		return news
 
 	def __webInfo(self):
 		return urllib.request.urlopen(self.url).read().decode('UTF-8')

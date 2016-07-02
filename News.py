@@ -11,7 +11,7 @@ class News:
 		emptyDict = dict()
 		emptyDict['title'] = self.title
 		emptyDict['source'] = self.source
-		emptyDict['url'] = self.url
+		emptyDict['_id'] = self.url
 		emptyDict['date'] = self.date
 		emptyDict['content'] = self.content
 		emptyDict['img'] = self.img
