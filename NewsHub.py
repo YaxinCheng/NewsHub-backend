@@ -12,6 +12,13 @@ class index(Resource):
 	def get(self):
 		return {"Hello": "World"}
 
+class parsePage(Resource):
+	def post(self):
+		url = request.form['url']
+		source = request.form['source']
+		crawler = NewsSeeker(url = url, source = source)
+		return crawler.process()
+
 class parseNews(Resource):
 	def post(self):
 		url = request.form['url']

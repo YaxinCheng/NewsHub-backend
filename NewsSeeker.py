@@ -16,11 +16,9 @@ class NewsSeeker:
 
 	def process(self):
 		self.data = self.__webInfo()
-		result = self.__headlines()
+		headlines = self.__headlines()
 		normal = self.__normalNews()
-		print("Headline Count " + str(len(result)))
-		print("Normal Count " + str(len(normal)))
-		print(normal[0])
+		return {'headlines': headlines, 'normal': normal}
 
 	def __webInfo(self):
 		return urllib.request.urlopen(self.url).read().decode('UTF-8')
