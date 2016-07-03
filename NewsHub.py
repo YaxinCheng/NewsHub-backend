@@ -33,5 +33,6 @@ class parseNews(Resource):
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
+api.add_resource(parsePage, '/api/news')
 if __name__ == '__main__':
 	app.run()
