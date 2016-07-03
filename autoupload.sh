@@ -1,3 +1,6 @@
 #!/bin/bash
 
-echo $argv[0]
+git add .
+#git rm -rf __pycache__
+git commit -m "$1"
+git push heroku master
