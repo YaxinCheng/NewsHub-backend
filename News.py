@@ -1,5 +1,5 @@
 class News:
-	def __init__(self, title, source, url, date, content = '', img = ''):
+	def __init__(self, title, source, url, date = '', content = '', img = ''):
 		self.title = title
 		self.source = source
 		self.url = url
@@ -12,7 +12,11 @@ class News:
 		emptyDict['title'] = self.title
 		emptyDict['source'] = self.source
 		emptyDict['_id'] = self.url
-		emptyDict['date'] = self.date
 		emptyDict['content'] = self.content
 		emptyDict['img'] = self.img
+		if len(self.date) > 0:
+			emptyDict['date'] = self.date
 		return emptyDict
+
+	def __str__(self):
+		return 'Title: ' + self.title + '\nSource: ' + self.source + '\nURL: ' + self.url + '\nDate: ' + self.date + '\nContent: ' + self.content + '\nImg: ' + self.img
