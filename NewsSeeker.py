@@ -18,7 +18,10 @@ class NewsSeeker:
 		self.data = self.__webInfo()
 		headlines = self.__headlines()
 		normal = self.__normalNews()
-		return {'headlines': headlines, 'normal': normal}
+		return {'headlines': self.__jsonHanlder(info = headlines), 'normal': self.__jsonHanlder(info = normal)}
+
+	def __jsonHanlder(self, info):
+		return [news.toDict() for news in info]
 
 	def __webInfo(self):
 		return urllib.request.urlopen(self.url).read().decode('UTF-8')

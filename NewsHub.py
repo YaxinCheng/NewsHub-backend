@@ -3,6 +3,7 @@ from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
 from bson.json_util import dumps
 from contentCrawler import contentCrawler
+from NewsSeeker import NewsSeeker
 
 app = Flask(__name__)
 mongo = PyMongo(app)
