@@ -92,3 +92,31 @@ class contentCrawler:
 			return soup.meta['content']
 		elif self.source == 'chronicle':
 			return date.split('</font>')[1].split('<br />')[0].strip()
+
+	def __dateFormatter(self, date):
+		Months = {'January': '01', 'February': '02', 'March' :'03', 'April':'04', 'May': '05',
+				 'June': '06', 'July': '07', 'August': '08', 'September': '09', 
+				 'October': '10', 'November': '11', 'December': '12'}
+		datePart = date.split('-')[0].strip()
+		timePart = data.split('-')[1].strip()
+		month = datePart.split(' ')[0].strip()
+		month = Months[month]
+		day = datePart.split(' ')[1].split(',')[0]
+		if len(day) == 1:
+			day = '0' + day
+		year = datePart.split(' ')[2].strip()
+		hourPart = True
+		hour = ''
+		minute = ''
+		for each in timePart:
+			if each == ':':
+				hourPart = False
+			if hourPart == True:
+				hour += each
+			else:
+				minute += each
+		if len(hour) == 1:
+			hour = '0' + hour
+		if len(minute) == 1:
+			minute = '0' + minute
+		return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':00-00:00'
