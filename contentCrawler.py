@@ -76,7 +76,10 @@ class contentCrawler:
 	def __image(self):
 		if self.url is None or self.source is None:
 			raise ValueError
-		img = self.__searchInfo(patternGroup = contentCrawler.imgPatterns)
+		try:
+			img = self.__searchInfo(patternGroup = contentCrawler.imgPatterns)
+		except ValueError:
+			return ""
 		if self.source == 'metro':
 			soup = BeautifulSoup(img, 'html.parser')
 			return soup.img['src']
