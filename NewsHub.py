@@ -32,31 +32,44 @@ class index(Resource):
 
 class parsePage(Resource):
 	def get(self, source):
-		if source == 'all':
-			result = mongo.db.page.find()
-		else:
-			result = mongo.db.page.find({'_id': source})
-		if result.count() > 0:
-			return result
 		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
-		if source != 'all':
-			url = URLs[source]
-			crawler = NewsSeeker(url = url, source = source)
-			result = crawler.process()
-			result['_id'] = source
-			mongo.db.page.insert(result)
-			return result
+		if source == 'all':
+			headlines = mongo.db.headlines.find()
+			normal = mongo.db.normal.find()
+			head = []
+			norm = []
+			if headlines.count() > 0 and normal.count() > 0:
+				for each in headlines:
+					head += each['content']
+				for each in normal:
+					norm += each['content']
+				return {'headlines': head, 'normal': norm}
+			else:
+				headlines = []
+				normal = []
+				for source in URLs.keys():
+					url = URLs[source]
+					crawler = NewsSeeker(url = url, source = source)
+					news = crawler.process()
+					headlines.append(news['headlines'])
+					normal.append(news['normal'])
+					mongo.db.headlines.save({'_id': source, 'content': news['headlines']})
+					mongo.db.normal.save({'_id': source, 'content': news['normal']})
+				result = {'headlines': headlines, 'normal': normal}
+				return result
 		else:
-			result = []
-			for each in URLs.keys():
-				url = URLs[each]
-				crawler = NewsSeeker(url = url, source = each)
-				news = crawler.process()
-				news['_id'] = each
-				result.append(news)
-			mongo.db.page.insert(result)
-			return result
-
+			headlines = mongo.db.headlines.find({'_id': source})
+			normal = mongo.db.normal.find({'_id': source})
+			if headlines.count() > 0 and normal.count() > 0:
+				return {'headlines': headlines[0]['content'], 'normal': normal[0]['content']}
+			else:
+				url = URLs[source]
+				crawler = NewsSeeker(url = url, source = source)
+				result = crawler.process()
+				mongo.db.headlines.save({'_id': source, 'content': result['headlines']})
+				mongo.db.normal.save({'_id': source, 'content': result['normal']})
+				return result
+			
 class parseNews(Resource):
 	def post(self):
 		url = request.form['url']
@@ -66,7 +79,7 @@ class parseNews(Resource):
 		source = request.form['source']
 		crawler = contentCrawler(url = url, source = source)
 		details = crawler.process()
-		mongo.db.news.insert(details.toDict())
+		mongo.db.details.insert(details.toDict())
 		return details.toDict()
 
 api.add_resource(index,'/')
