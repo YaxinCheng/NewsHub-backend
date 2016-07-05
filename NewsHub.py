@@ -42,7 +42,10 @@ class parsePage(Resource):
 		if source != 'all':
 			url = URLs[source]
 			crawler = NewsSeeker(url = url, source = source)
-			return [crawler.process()]
+			result = crawler.process()
+			result['_id'] = source
+			mongo.db.page.insert(result)
+			return result
 		else:
 			result = []
 			for each in URLs.keys():
@@ -51,6 +54,7 @@ class parsePage(Resource):
 				news = crawler.process()
 				news['_id'] = each
 				result.append(news)
+			mongo.db.page.insert(result)
 			return result
 
 class parseNews(Resource):

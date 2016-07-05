@@ -7,7 +7,7 @@ class NewsSeeker:
 
 	headlinePatterns = {'metro': '<div class="top-story"(.*?|\s)*?<\/div>',
 						'chronicle': '<div class="text">(\s|.)*?<h2>.*?<\/h2>'}
-	normalPatterns = {'metro': '<li class="(no\-thumb|top\-story float\-clear)"(.|\s)*?<\/li>', 
+	normalPatterns = {'metro': '(\s<li( class="((top\-story )?float\-clear)")?( data-thumbnail=.*?)?>(.|\s)*?(<\/p>)(.|\s)*?<\/li>)|<li class="no-thumb".*\s*?<a.*\s*?<\/li>', 
 						'chronicle': '<div class="views-field-title cufon">(.|\s)*?<a href=".*?">.*?<\/a>(.|\s)*?<\/div>'}
 
 	def __init__(self, url, source):
@@ -78,6 +78,7 @@ class NewsSeeker:
 		if self.url is None or self.source is None:
 			raise ValueError
 		normal = self.__findAllInfo(patternGroup = self.normalPatterns)
+		normal = filter(lambda x: len(x.group()) < 4000, normal)
 		news = []
 		for each in normal:
 			soup = BeautifulSoup(each.group(), 'html.parser')
@@ -85,9 +86,12 @@ class NewsSeeker:
 				try:
 					img = soup.li['data-thumbnail']
 				except KeyError:
-					img = soup.li.img['data-original']
+					try:
+						img = soup.li.img['data-original']
+					except:
+						img = ''
 				url = soup.li.a['href']
-				title = soup.li.a.text
+				title = soup.li.p.a.text if soup.li.a.text == '\n\n' else soup.li.a.text
 				content = ''
 				try:
 					content = soup.li.img['alt']
