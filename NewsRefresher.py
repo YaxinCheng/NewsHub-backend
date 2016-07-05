@@ -13,11 +13,8 @@ def refresh_news():
 		url = URLs[eachKey]
 		seeker = NewsSeeker(url = url, source = eachKey)
 		result = seeker.process()
-		headlines = result['headlines']
-		normal = result['normal']
-		headlines = [ eachNews for eachNews in headlines ]
-		normal = [ eachNews for eachNews in normal ]
-		db.page.insert_one({'_id': eachKey, 'headline': headlines, 'normal': normal})
+		result['_id'] = eachKey
+		db.page.insert_one(result)
 	client.close()
 
 @sched.scheduled_job('cron', day_of_week = 'fri', hour = 17)
