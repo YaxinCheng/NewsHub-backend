@@ -23,13 +23,13 @@ class parsePage(Resource):
 class parseNews(Resource):
 	def post(self):
 		url = request.form['url']
-		result = mongo.db.news.find({'_id': url})
-		if result.count() > 0:
-			return dumps(result)
+		# result = mongo.db.news.find({'_id': url})
+		# if result.count() > 0:
+		# 	return dumps(result)
 		source = request.form['source']
 		crawler = contentCrawler(url = url, source = source)
 		details = crawler.process()
-		mongo.db.news.insert(details.toDict())
+		# mongo.db.news.insert(details.toDict())
 		return details.toDict()
 
 api.add_resource(index,'/')
