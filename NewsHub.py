@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
@@ -6,6 +7,11 @@ from contentCrawler import contentCrawler
 from NewsSeeker import NewsSeeker
 
 app = Flask(__name__)
+MONGO_URI = os.environ.get('MONGO_URL')
+if not MONGO_URI:
+	MONGO_URI = "mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k"
+
+app.config['MONGO_URI'] = MONGO_URI
 mongo = PyMongo(app)
 api = Api(app)
 
