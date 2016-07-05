@@ -1,10 +1,18 @@
 import os
-from flask import Flask, request
+from flask import Flask, request, make_response
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
 from bson.json_util import dumps
 from contentCrawler import contentCrawler
 from NewsSeeker import NewsSeeker
+
+
+def output_json(obj, code, headers = None):
+	resp = make_response(dumps(obj), code)
+	resp.headers.extend(headers or {})
+	return resp
+
+DEFAULT_REPRESENTATIONS = {'application/json': output_json}
 
 app = Flask(__name__)
 MONGO_URI = os.environ.get('MONGO_URL')
@@ -14,6 +22,9 @@ if not MONGO_URI:
 app.config['MONGO_URI'] = MONGO_URI
 mongo = PyMongo(app)
 api = Api(app)
+api.representations = DEFAULT_REPRESENTATIONS
+
+
 
 class index(Resource):
 	def get(self):
@@ -26,7 +37,7 @@ class parsePage(Resource):
 		else:
 			result = mongo.db.page.find({'_id': source})
 		if result.count() > 0:
-			return dumps(result)
+			return result
 		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 		if source != 'all':
 			url = URLs[source]
@@ -47,7 +58,7 @@ class parseNews(Resource):
 		url = request.form['url']
 		result = mongo.db.news.find({'_id': url})
 		if result.count() > 0:
-			return dumps(result)
+			return result
 		source = request.form['source']
 		crawler = contentCrawler(url = url, source = source)
 		details = crawler.process()
