@@ -5,6 +5,7 @@ from flask_restful import Resource, Api
 from bson.json_util import dumps
 from contentCrawler import contentCrawler
 from NewsSeeker import NewsSeeker
+import datetime
 
 app = Flask(__name__)
 MONGO_URI = os.environ.get('MONGO_URL')
@@ -15,14 +16,20 @@ app.config['MONGO_URI'] = MONGO_URI
 mongo = PyMongo(app)
 api = Api(app)
 
+app.logger.debug(datetime.datetime.now())
+
 class index(Resource):
 	def get(self):
 		return {"Hello": "World"}
 
 class parsePage(Resource):
 	def post(self):
-		url = request.form['url']
+		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 		source = request.form['source']
+		# result = mongo.db.pages.find({'_id': source})
+		# if result.count() > 0:
+
+		url = URLs[source]
 		crawler = NewsSeeker(url = url, source = source)
 		return crawler.process()
 
