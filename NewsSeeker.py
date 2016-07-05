@@ -100,6 +100,8 @@ class NewsSeeker:
 				news.append(News(title = title, img = img, url = url, source = self.source))
 			elif self.source == 'chronicle':
 				url = soup.div.span.a['href']
+				if not ('http://' in url or 'https://' in url):
+					url = 'http://thechronicleherald.ca' + url
 				title = soup.div.span.a.text
 				news.append(News(title = title, url = url, source = self.source))
 		return news
