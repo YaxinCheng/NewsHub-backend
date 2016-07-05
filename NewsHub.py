@@ -16,8 +16,6 @@ app.config['MONGO_URI'] = MONGO_URI
 mongo = PyMongo(app)
 api = Api(app)
 
-app.logger.debug(datetime.datetime.now())
-
 class index(Resource):
 	def get(self):
 		return {"Hello": "World"}
@@ -26,12 +24,12 @@ class parsePage(Resource):
 	def post(self):
 		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 		source = request.form['source']
-		# result = mongo.db.pages.find({'_id': source})
-		# if result.count() > 0:
-
+		result = mongo.db.pages.find({'_id': source})
+		if result.count() > 0:
+			return dumps(result)
 		url = URLs[source]
 		crawler = NewsSeeker(url = url, source = source)
-		return crawler.process()
+		return crawler.process(original = True)
 
 class parseNews(Resource):
 	def post(self):

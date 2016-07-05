@@ -14,10 +14,12 @@ class NewsSeeker:
 		self.url = url
 		self.source = source
 
-	def process(self):
+	def process(self, original = False):
 		self.data = self.__webInfo()
 		headlines = self.__headlines()
 		normal = self.__normalNews()
+		if original == True:
+			return {'headlines': headlines, 'normal': normal}
 		return {'headlines': self.__jsonHanlder(info = headlines), 'normal': self.__jsonHanlder(info = normal)}
 
 	def __jsonHanlder(self, info):
