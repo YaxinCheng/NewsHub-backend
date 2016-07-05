@@ -27,7 +27,7 @@ def refresh_news():
 			db.normal.insert_one({eachKey: headlines})
 	client.close()
 
-@sched.scheduled_job('cron', day_of_week = 'satur', hour = 17)
+@sched.scheduled_job('cron', day_of_week = 'fri', hour = 17)
 def remove_news_caches():
 	client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 	db = client.heroku_gfp8zr4k
