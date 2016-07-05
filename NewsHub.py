@@ -20,15 +20,27 @@ class index(Resource):
 		return {"Hello": "World"}
 
 class parsePage(Resource):
-	def post(self):
-		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
-		source = request.form['source']
-		result = mongo.db.page.find({'_id': source})
+	def get(self, source):
+		if source == 'all':
+			result = mongo.db.page.find()
+		else:
+			result = mongo.db.page.find({'_id': source})
 		if result.count() > 0:
 			return dumps(result)
-		url = URLs[source]
-		crawler = NewsSeeker(url = url, source = source)
-		return crawler.process()
+		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
+		if source != 'all':
+			url = URLs[source]
+			crawler = NewsSeeker(url = url, source = source)
+			return [crawler.process()]
+		else:
+			result = []
+			for each in URLs.keys():
+				url = URLs[each]
+				crawler = NewsSeeker(url = url, source = each)
+				news = crawler.process()
+				news['_id'] = each
+				result.append(news)
+			return result
 
 class parseNews(Resource):
 	def post(self):
@@ -44,6 +56,6 @@ class parseNews(Resource):
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
-api.add_resource(parsePage, '/api/news')
+api.add_resource(parsePage,'/api/news/<string:source>')
 if __name__ == '__main__':
 	app.run()
