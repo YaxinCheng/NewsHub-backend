@@ -6,13 +6,6 @@ class News:
 		self.date = date
 		self.content = content
 		self.img = img
-		# if not len(self.img) == 0:
-		# 	queue = Queue()
-		# 	thread = NewsImageThread(queue = queue)
-		# 	thread.daemon = True
-		# 	thread.start()
-		# 	queue.put(self)
-		# 	queue.join()
 
 	def toDict(self):
 		emptyDict = dict()
