@@ -16,14 +16,14 @@ class NewsThread(threading.Thread):
 			seeker = self.queue.get()
 			if self.field == 'headlines':
 				result = seeker.process(normal = False)
-				self.storage.append(result)
-				# if not mongo is None:
-				self.mongo.headlines.delete_many({'_id': seeker.source})
-				self.mongo.headlines.insert_one(result)
+				self.storage += list(result)
+				self.mongo.headlines.delete_many({'source': seeker.source})
+				for news in result:
+					self.mongo.headlines.insert_one(news)
 			elif self.field == 'normal':
 				result = seeker.process(headlines = False)
-				self.storage.append(result)
-				# if not mongo is None:
-				self.mongo.normal.delete_many({'_id': seeker.source})
-				self.mongo.normal.insert_one(result)
+				self.storage += list(result)
+				self.mongo.normal.delete_many({'source': seeker.source})
+				for news in result:
+					self.mongo.normal.insert_one(news)
 			self.queue.task_done()			

@@ -35,14 +35,8 @@ class parseAllPage(Resource):
 		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 		headlines = mongo.db.headlines.find()
 		normal = mongo.db.normal.find()
-		head = []
-		norm = []
 		if headlines.count() > 0 and normal.count() > 0:
-			for each in headlines:
-				head += each['content']
-			for each in normal:
-				norm += each['content']
-			return {'headlines': head, 'normal': norm}
+			return {'headlines': headlines, 'normal': normal}
 		else:
 			queue = Queue()
 			headlines = []
@@ -61,30 +55,23 @@ class parseAllPage(Resource):
 				queue.put(crawler)
 				queue.put(crawler)
 			queue.join()
-			headlineContent = []
-			normalContent = []
-			for each in headlines:
-				headlineContent += each['content']
-			for each in normal:
-				normalContent += each['content']
-			result = {'headlines': headlineContent, 'normal': normalContent}
-			return result
+			return {'headlines': headlines, 'normal': normal}
 
 class parsePage(Resource):
 	def get(self, source):
 		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 		if not source in URLs:
 			abort(404)
-		headlines = mongo.db.headlines.find({'_id': source})
-		normal = mongo.db.normal.find({'_id': source})
+		headlines = mongo.db.headlines.find({'source': source})
+		normal = mongo.db.normal.find({'source': source})
 		if headlines.count() > 0 and normal.count() > 0:
-			return {'headlines': headlines[0]['content'], 'normal': normal[0]['content']}
+			return {'headlines': headlines, 'normal': normal}
 		else:
 			url = URLs[source]
 			crawler = NewsSeeker(url = url, source = source)
 			result = crawler.process()
-			mongo.db.headlines.save({'_id': source, 'content': result['headlines']})
-			mongo.db.normal.save({'_id': source, 'content': result['normal']})
+			mongo.db.headlines.insert(result['headlines'])
+			mongo.db.normal.insert(result['normal'])
 			return result
 			
 class parseNews(Resource):

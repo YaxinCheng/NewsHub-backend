@@ -14,14 +14,13 @@ def refresh_news():
 	headlines = []
 	normal = []
 	queue = Queue()
-	for _ in range(len(URLs)):
-		headlineThread = NewsThread(queue = queue, storage = headlines, filed = 'headlines')
-		headlineThread.daemon = True
-		headlineThread.start()
-
-		normalThread = NewsThread(queue = queue, storage = normal, field = 'normal')
-		normalThread.daemon = True
-		normalThread.start()
+	for _ in range(2 * len(URLs)):
+		if index % 2 == 0:
+			newsThread = NewsThread(queue = queue, storage = headlines, filed = 'headlines')
+		else:
+			newsThread = NewsThread(queue = queue, storage = normal, field = 'normal')			
+		newsThread.daemon = True
+		newsThread.start()
 	for eachKey in URLs.keys():
 		url = URLs[eachKey]
 		seeker = NewsSeeker(url = url, source = eachKey)

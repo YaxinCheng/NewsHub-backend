@@ -21,13 +21,20 @@ class NewsSeeker:
 		if normal == True:
 			normal = self.__normalNews()
 		if headlines == False:
-			return {'_id': self.source, 'content': self.__jsonHanlder(info = normal)}
+			return self.__jsonHanlder(info = normal)
 		if normal == False:
-			return {'_id': self.source, 'content': self.__jsonHanlder(info = headlines)}
+			return self.__jsonHanlder(info = headlines)
 		return {'headlines': self.__jsonHanlder(info = headlines), 'normal': self.__jsonHanlder(info = normal)}
 
 	def __jsonHanlder(self, info):
-		return [news.toDict() for news in info]
+		ids = set()
+		result = []
+		for news in info:
+			if news.url in ids:
+				continue
+			ids.add(news.url)
+			result.append(news.toDict())
+		return result
 
 	def __webInfo(self):
 		return urllib.request.urlopen(self.url).read().decode('UTF-8')
