@@ -1,5 +1,7 @@
 from pymongo import MongoClient
 from NewsSeeker import NewsSeeker
+from NewsThread import NewsThread
+from queue import Queue
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
@@ -11,16 +13,21 @@ def refresh_news():
 	db = client.heroku_gfp8zr4k
 	headlines = []
 	normal = []
+	queue = Queue()
+	for _ in range(len(URLs)):
+		headlineThread = NewsThread(queue = queue, storage = headlines, filed = 'headlines')
+		headlineThread.daemon = True
+		headlineThread.start()
+
+		normalThread = NewsThread(queue = queue, storage = normal, field = 'normal')
+		normalThread.daemon = True
+		normalThread.start()
 	for eachKey in URLs.keys():
 		url = URLs[eachKey]
 		seeker = NewsSeeker(url = url, source = eachKey)
-		result = seeker.process()
-		headlines += result['headlines']
-		normal += result['normal']
-		db.headlines.delete_many({'_id': eachKey})
-		db.headlines.insert_one({'_id': eachKey, 'content': headlines})
-		db.normal.delete_many({'_id': eachKey})
-		db.normal.insert_one({'_id': eachKey, 'content': normal})
+		queue.put(seeker)
+		queue.put(seeker)
+	queue.join()
 	client.close()
 
 @sched.scheduled_job('cron', day_of_week = 'fri', hour = 17)
