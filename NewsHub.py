@@ -77,7 +77,7 @@ class parsePage(Resource):
 			headlinesThread.start()
 			normalThread = NewsThread(queue = queue, storage = normal, field = 'normal')
 			normalThread.daemon = True
-			headlinesThread.start()
+			normalThread.start()
 			queue.put(crawler)
 			queue.put(crawler)
 			queue.join()
