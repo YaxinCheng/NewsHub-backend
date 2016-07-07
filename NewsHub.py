@@ -5,6 +5,8 @@ from flask_restful import Resource, Api
 from bson.json_util import dumps
 from contentCrawler import contentCrawler
 from NewsSeeker import NewsSeeker
+from queue import Queue
+from NewsThread import NewsThread
 
 
 def output_json(obj, code, headers = None):
@@ -24,8 +26,6 @@ mongo = PyMongo(app)
 api = Api(app)
 api.representations = DEFAULT_REPRESENTATIONS
 
-
-
 class index(Resource):
 	def get(self):
 		return {"Hello": "World"}
@@ -44,17 +44,30 @@ class parseAllPage(Resource):
 				norm += each['content']
 			return {'headlines': head, 'normal': norm}
 		else:
+			queue = Queue()
 			headlines = []
 			normal = []
 			for source in URLs.keys():
 				url = URLs[source]
 				crawler = NewsSeeker(url = url, source = source)
-				news = crawler.process()
-				headlines.append(news['headlines'])
-				normal.append(news['normal'])
-				mongo.db.headlines.save({'_id': source, 'content': news['headlines']})
-				mongo.db.normal.save({'_id': source, 'content': news['normal']})
-			result = {'headlines': headlines, 'normal': normal}
+				headlinesThread = NewsThread(queue = queue, storage = headlines, field = 'headlines')
+				headlinesThread.daemon = True
+				headlinesThread.start()
+				
+				normalThread = NewsThread(queue = queue, storage = normal, field = 'normal')
+				normalThread.daemon = True
+				normalThread.start()
+
+				queue.put(crawler)
+				queue.put(crawler)
+			queue.join()
+			headlineContent = []
+			normalContent = []
+			for each in headlines:
+				headlineContent += each['content']
+			for each in normal:
+				normalContent += each['content']
+			result = {'headlines': headlineContent, 'normal': normalContent}
 			return result
 
 class parsePage(Resource):
