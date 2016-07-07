@@ -67,12 +67,21 @@ class parsePage(Resource):
 		if headlines.count() > 0 and normal.count() > 0:
 			return {'headlines': headlines, 'normal': normal}
 		else:
+			queue = Queue()
+			headlines = []
+			normal = []
 			url = URLs[source]
 			crawler = NewsSeeker(url = url, source = source)
-			result = crawler.process()
-			mongo.db.headlines.insert(result['headlines'])
-			mongo.db.normal.insert(result['normal'])
-			return result
+			headlinesThread = NewsThread(queue = queue, storage = headlines, field = 'headlines')
+			headlinesThread.daemon = True
+			headlinesThread.start()
+			normalThread = NewsThread(queue = queue, storage = normal, field = 'normal')
+			normalThread.daemon = True
+			headlinesThread.start()
+			queue.put(crawler)
+			queue.put(crawler)
+			queue.join()
+			return {'headlines': headlines, 'normal': normal}
 			
 class parseNews(Resource):
 	def post(self):
