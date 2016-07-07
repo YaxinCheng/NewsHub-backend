@@ -95,9 +95,19 @@ class parseNews(Resource):
 		mongo.db.details.insert(details.toDict())
 		return details.toDict()
 
+class getThumbnail(Resource):
+	def post(self):
+		url = request.form['url']
+		result = mongo.db.news.find({'_id': url})
+		if result.count() > 0:
+			return result
+		else:
+			return {'Error': 'image not found'}
+
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
 api.add_resource(parseAllPage, '/api/news/')
 api.add_resource(parsePage,'/api/news/<string:source>')
+api.add_resource(getThumbnail, '/api/thumbnails')
 if __name__ == '__main__':
 	app.run()
