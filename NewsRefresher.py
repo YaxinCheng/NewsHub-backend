@@ -14,7 +14,7 @@ def refresh_news():
 	headlines = []
 	normal = []
 	queue = Queue()
-	for _ in range(2 * len(URLs)):
+	for index in range(2 * len(URLs)):
 		if index % 2 == 0:
 			newsThread = NewsThread(queue = queue, storage = headlines, filed = 'headlines')
 		else:
