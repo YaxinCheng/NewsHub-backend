@@ -16,7 +16,7 @@ def refresh_news():
 	queue = Queue()
 	for index in range(2 * len(URLs)):
 		if index % 2 == 0:
-			newsThread = NewsThread(queue = queue, storage = headlines, filed = 'headlines')
+			newsThread = NewsThread(queue = queue, storage = headlines, field = 'headlines')
 		else:
 			newsThread = NewsThread(queue = queue, storage = normal, field = 'normal')			
 		newsThread.daemon = True
@@ -34,6 +34,6 @@ def remove_news_caches():
 	client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 	db = client.heroku_gfp8zr4k
 	db.details.drop()
-	db.close()
+	client.close()
 
 sched.start()
