@@ -113,11 +113,26 @@ class NewsSeeker:
 				news.append(News(title = title, img = img, url = url, source = self.source))
 			elif self.source == 'chronicle':
 				url = soup.div.span.a['href']
+				imgLink, content = self.__moreInfoForChronicle(url)
 				if not ('http://' in url or 'https://' in url):
 					url = 'http://thechronicleherald.ca' + url
 				title = soup.div.span.a.text
-				news.append(News(title = title, url = url, source = self.source))
+				news.append(News(title = title, url = url, source = self.source, content = content, img = imgLink))
 		return news
+
+	def __moreInfoForChronicle(self, url):
+		imgURL = ''
+		for character in url:
+			if character == '/':
+				imgURL += '\/'
+			else:
+				imgURL += character
+		imgPattern = re.compile('<span.*' + imgURL + '(\s|.).*?<img.*<\/span>')
+		imgPart = re.search(imgPattern, self.data)
+		if not imgPart is None:
+			soup = BeautifulSoup(imgPart.group(), 'html.parser')
+			return soup.span.a.img['src'], soup.span.a.img['title']
+		return '',''
 
 
 	def __processChronicleHeadline(self, index):
