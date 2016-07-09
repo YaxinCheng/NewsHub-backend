@@ -18,7 +18,6 @@ class NewsThread(threading.Thread):
 	def run(self):
 		while True:
 			seeker = self.queue.get()
-			self.mongo.images.drop()
 			if self.field == 'headlines':
 				result = seeker.process(normal = False)
 				self.storage += list(result)
@@ -43,6 +42,6 @@ class NewsThread(threading.Thread):
 		imageFile = Image.open(BytesIO(response.content))
 		imageFile.thumbnail((120,120))
 		imageBuffer = BytesIO()
-		imageFile.save(imageBuffer, "JPEG")
-		imageString = base64.b64encode(imageBuffer.getvalue())
-		self.mongo.images.insert_one({'_id': url, 'image': imageString})
+		imageFile.save(imageBuffer, format = "JPEG")
+		imageString = base64.b64encode(imageBuffer.getvalue()).decode('UTF-8')
+		self.mongo.images.insert_one({'_id': url, 'img': imageString})
