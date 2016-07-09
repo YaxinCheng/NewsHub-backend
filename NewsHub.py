@@ -7,7 +7,7 @@ from contentCrawler import contentCrawler
 from NewsSeeker import NewsSeeker
 from queue import Queue
 from NewsThread import NewsThread
-
+import json
 
 def output_json(obj, code, headers = None):
 	resp = make_response(dumps(obj), code)
@@ -85,11 +85,12 @@ class parsePage(Resource):
 			
 class parseNews(Resource):
 	def post(self):
-		url = request.form['url']
+		content = json.loads(json.dumps(request.get_json(force = True)))
+		url = content['url']
 		result = mongo.db.news.find({'_id': url})
 		if result.count() > 0:
 			return result
-		source = request.form['source']
+		source = content['source']
 		crawler = contentCrawler(url = url, source = source)
 		details = crawler.process()
 		mongo.db.details.insert(details.toDict())
@@ -97,10 +98,11 @@ class parseNews(Resource):
 
 class getThumbnail(Resource):
 	def post(self):
-		url = request.form['url']
+		content = json.loads(json.dumps(request.get_json(force = True)))
+		url = content['url']
 		result = mongo.db.images.find({'_id': url})
 		if result.count() > 0:
-			return result
+			return result[0]
 		else:
 			return {'Error': 'image not found'}
 
