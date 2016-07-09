@@ -7,7 +7,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 sched = BlockingScheduler()
 
-@sched.scheduled_job('interval', hours = 3)
+@sched.scheduled_job('interval', hours = 1)
 def refresh_news():
 	client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 	db = client.heroku_gfp8zr4k
