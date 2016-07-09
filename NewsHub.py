@@ -98,7 +98,7 @@ class parseNews(Resource):
 class getThumbnail(Resource):
 	def post(self):
 		url = request.form['url']
-		result = mongo.db.news.find({'_id': url})
+		result = mongo.db.images.find({'_id': url})
 		if result.count() > 0:
 			return result
 		else:
