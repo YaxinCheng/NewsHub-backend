@@ -25,7 +25,7 @@ class NewsThread(threading.Thread):
 				for news in result:
 					self.mongo.headlines.insert_one(news)
 					if not len(news['img']) == 0 and '.jpg' in news['img']:
-						self.__generateThumbnail(news['img'])
+						self.__generateThumbnail(url = news['img'], resolution = (500, 500))
 			elif self.field == 'normal':
 				result = seeker.process(headlines = False)
 				self.storage += list(result)
@@ -33,14 +33,14 @@ class NewsThread(threading.Thread):
 				for news in result:
 					self.mongo.normal.insert_one(news)
 					if not len(news['img']) == 0:
-						self.__generateThumbnail(url = news['img'])
+						self.__generateThumbnail(url = news['img'], resolution = (150, 150))
 			self.queue.task_done()		
 
-	def __generateThumbnail(self, url):
+	def __generateThumbnail(self, url, resolution):
 		imageURL = url
 		response = requests.get(imageURL)
 		imageFile = Image.open(BytesIO(response.content))
-		imageFile.thumbnail((120,120))
+		imageFile.thumbnail(resolution)
 		imageBuffer = BytesIO()
 		imageFile.save(imageBuffer, format = "JPEG")
 		imageString = base64.b64encode(imageBuffer.getvalue()).decode('UTF-8')
