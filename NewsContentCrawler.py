@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import re
 from News import News
 
-class contentCrawler:
+class NewsContentCrawler:
 	contentPatterns = {'metro': '<div class="body parsys">(.*?|\s)*?<\/div>\s<\/div>',
 						'chronicle': '<div class="article-related-content-wrapper"><\/div>(.|\s)*?<\/div>'}
 	titlePatterns = {'metro':'<div class="body parsys">(.*?|\s)*?<\/p>\s<\/div>', 'chronicle': '<h1 property="dc:title">.*<\/h1>'}
@@ -41,7 +41,7 @@ class contentCrawler:
 	def __content(self):
 		if self.url is None or self.source is None:
 			raise ValueError
-		content = self.__searchInfo(patternGroup = contentCrawler.contentPatterns)
+		content = self.__searchInfo(patternGroup = NewsContentCrawler.contentPatterns)
 		soup = BeautifulSoup(content, 'html.parser')
 		result = ''
 		if self.source == 'metro':
@@ -66,7 +66,7 @@ class contentCrawler:
 	def __title(self):
 		if self.url is None or self.source is None:
 			raise ValueError
-		title = self.__searchInfo(patternGroup = contentCrawler.titlePatterns)
+		title = self.__searchInfo(patternGroup = NewsContentCrawler.titlePatterns)
 		soup = BeautifulSoup(title, 'html.parser')
 		if self.source == 'metro':
 			return soup.div.div.p.text
@@ -77,7 +77,7 @@ class contentCrawler:
 		if self.url is None or self.source is None:
 			raise ValueError
 		try:
-			img = self.__searchInfo(patternGroup = contentCrawler.imgPatterns)
+			img = self.__searchInfo(patternGroup = NewsContentCrawler.imgPatterns)
 		except ValueError:
 			return ""
 		if self.source == 'metro':
@@ -89,7 +89,7 @@ class contentCrawler:
 	def __date(self):
 		if self.url is None or self.source is None:
 			raise ValueError
-		date = self.__searchInfo(patternGroup = contentCrawler.datePatterns)
+		date = self.__searchInfo(patternGroup = NewsContentCrawler.datePatterns)
 		if self.source == 'metro':
 			soup = BeautifulSoup(date, 'html.parser')
 			return soup.meta['content']

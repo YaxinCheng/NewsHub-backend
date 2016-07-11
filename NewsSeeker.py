@@ -2,6 +2,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 from News import News
 import re
+from NewsContentCrawler import NewsContentCrawler
 
 class NewsSeeker:
 
@@ -104,7 +105,7 @@ class NewsSeeker:
 					except:
 						img = ''
 				url = soup.li.a['href']
-				title = soup.li.p.a.text if soup.li.a.text == '\n\n' else soup.li.a.text
+				title = soup.li.p.a.text if len(soup.li.a.text.strip()) == 0 else soup.li.a.text
 				content = ''
 				try:
 					content = soup.li.img['alt']

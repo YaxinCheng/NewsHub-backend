@@ -44,4 +44,7 @@ class NewsThread(threading.Thread):
 		imageBuffer = BytesIO()
 		imageFile.save(imageBuffer, format = "JPEG")
 		imageString = base64.b64encode(imageBuffer.getvalue()).decode('UTF-8')
-		self.mongo.images.insert_one({'_id': url, 'img': imageString})
+		try:
+			self.mongo.images.insert_one({'_id': url, 'img': imageString})
+		except DuplicateKeyError:
+			pass
