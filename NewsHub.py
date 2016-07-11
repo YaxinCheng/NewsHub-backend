@@ -3,7 +3,7 @@ from flask import Flask, request, make_response, abort
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
 from bson.json_util import dumps
-from contentCrawler import contentCrawler
+from NewsContentCrawler import NewsContentCrawler
 from NewsSeeker import NewsSeeker
 from queue import Queue
 from NewsThread import NewsThread
@@ -91,7 +91,7 @@ class parseNews(Resource):
 		if result.count() > 0:
 			return result
 		source = content['source']
-		crawler = contentCrawler(url = url, source = source)
+		crawler = NewsContentCrawler(url = url, source = source)
 		details = crawler.process()
 		mongo.db.details.insert(details.toDict())
 		return details.toDict()

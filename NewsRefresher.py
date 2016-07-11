@@ -11,6 +11,7 @@ sched = BlockingScheduler()
 def refresh_news():
 	client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 	db = client.heroku_gfp8zr4k
+	db.images.drop()
 	headlines = []
 	normal = []
 	queue = Queue()
