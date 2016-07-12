@@ -1,6 +1,7 @@
 import threading
 from NewsSeeker import NewsSeeker
 from pymongo import MongoClient
+import pymongo
 import requests
 from PIL import Image
 from io import BytesIO
@@ -46,5 +47,5 @@ class NewsThread(threading.Thread):
 		imageString = base64.b64encode(imageBuffer.getvalue()).decode('UTF-8')
 		try:
 			self.mongo.images.insert_one({'_id': url, 'img': imageString})
-		except DuplicateKeyError:
+		except pymongo.errors.DuplicateKeyError:
 			pass
