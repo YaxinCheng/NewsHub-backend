@@ -24,7 +24,10 @@ class NewsThread(threading.Thread):
 				self.storage += list(result)
 				self.mongo.headlines.delete_many({'source': seeker.source})
 				for news in result:
-					self.mongo.headlines.insert_one(news)
+					try:
+						self.mongo.headlines.insert_one(news)
+					except:
+						continue
 					if not len(news['img']) == 0 and '.jpg' in news['img']:
 						self.__generateThumbnail(url = news['img'], resolution = (500, 500))
 			elif self.field == 'normal':
@@ -32,7 +35,10 @@ class NewsThread(threading.Thread):
 				self.storage += list(result)
 				self.mongo.normal.delete_many({'source': seeker.source})
 				for news in result:
-					self.mongo.normal.insert_one(news)
+					try:
+						self.mongo.normal.insert_one(news)
+					except:
+						continue
 					if not len(news['img']) == 0:
 						self.__generateThumbnail(url = news['img'], resolution = (150, 150))
 			self.queue.task_done()		
@@ -47,5 +53,5 @@ class NewsThread(threading.Thread):
 		imageString = base64.b64encode(imageBuffer.getvalue()).decode('UTF-8')
 		try:
 			self.mongo.images.insert_one({'_id': url, 'img': imageString})
-		except pymongo.errors.DuplicateKeyError:
+		except:
 			pass
