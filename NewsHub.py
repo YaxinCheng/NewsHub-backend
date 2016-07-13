@@ -2,12 +2,14 @@ import os
 from flask import Flask, request, make_response, abort
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
+from flask_login import LoginManager, login_required, login_user
 from bson.json_util import dumps
 from NewsContentCrawler import NewsContentCrawler
 from NewsSeeker import NewsSeeker
 from queue import Queue
 from NewsThread import NewsThread
 import json
+from User import User
 
 def output_json(obj, code, headers = None):
 	resp = make_response(dumps(obj), code)
@@ -17,6 +19,11 @@ def output_json(obj, code, headers = None):
 DEFAULT_REPRESENTATIONS = {'application/json': output_json}
 
 app = Flask(__name__)
+
+app.secret_key = 'heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335'
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 MONGO_URI = os.environ.get('MONGO_URL')
 if not MONGO_URI:
 	MONGO_URI = "mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k"
@@ -26,7 +33,12 @@ mongo = PyMongo(app)
 api = Api(app)
 api.representations = DEFAULT_REPRESENTATIONS
 
+@login_manager.user_loader
+def load_user(user_id):
+	return User.get(user_id)
+
 class index(Resource):
+	@login_required
 	def get(self):
 		return {"Hello": "World"}
 
@@ -108,10 +120,44 @@ class getThumbnail(Resource):
 		else:
 			return {'Error': 'image not found'}
 
+class register(Resource):
+	def get(self):
+		return {'Requirement': 'Hash your password before posting'}
+	def post(self):
+		content = json.loads(json.dumps(request.get_json(force = True)))
+		email = content['email']
+		password = content['password']
+		name = content['name']
+		result = User.register(email = email, name = name, password = password)
+		if result == False:
+			return {"ERROR": "The email is already registered"}
+		else:
+			return {'Success': 'Register Successfully'}
+
+class login(Resource):
+	def post(self):
+		content = json.loads(json.dumps(request.get_json(force = True)))
+		email = content['email']
+		password = content['password']
+		validateResult = User.validate(user_id = email, password = password)
+		if validateResult is None:
+			return {"ERROR": 'Email does not exist'}
+		elif validateResult == False:
+			return {'ERROR': 'Email and password do not match'}
+		else:
+			user = mongo.db.Users.find({'_id': email})[0]
+			user['status'] = True
+			user['activated'] = True
+			mongo.db.Users.update({'_id': email}, user)
+			return user
+
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
 api.add_resource(parseAllPage, '/api/news/')
 api.add_resource(parsePage,'/api/news/<string:source>')
 api.add_resource(getThumbnail, '/api/thumbnails')
+api.add_resource(register, '/register')
+api.add_resource(login, '/login')
+
 if __name__ == '__main__':
 	app.run()
