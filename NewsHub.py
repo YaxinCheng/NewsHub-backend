@@ -33,9 +33,10 @@ class index(Resource):
 class parseAllPage(Resource):
 	def get(self):
 		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
-		headlines = mongo.db.headlines.find()
-		normal = mongo.db.normal.find().sort([('tag', 1)]).limit(15)
-		if headlines.count() > 0 and normal.count() > 0:
+		page = 1 if not 'page' in request.headers else int(request.headers['page'])
+		headlines = mongo.db.headlines.find() if page == 1 else None
+		normal = mongo.db.normal.find().sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
+		if (headlines is None or headlines.count() > 0) and normal.count() > 0:
 			return {'headlines': headlines, 'normal': normal}
 		else:
 			queue = Queue()
@@ -55,16 +56,17 @@ class parseAllPage(Resource):
 				queue.put(crawler)
 				queue.put(crawler)
 			queue.join()
-			return {'headlines': headlines, 'normal': normal[0:14]}
+			return {'headlines': headlines, 'normal': normal}
 
 class parsePage(Resource):
 	def get(self, source):
 		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 		if not source in URLs:
 			abort(404)
-		headlines = mongo.db.headlines.find({'source': source})
-		normal = mongo.db.normal.find({'source': source}).sort([('tag', 1)]).limit(15)
-		if headlines.count() > 0 and normal.count() > 0:
+		page = 1 if not 'page' in request.headers else int(request.headers['page'])
+		headlines = mongo.db.headlines.find({'source': source}) if page == 1 else None
+		normal = mongo.db.normal.find({'source': source}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
+		if (headliens is None or headlines.count() > 0) and normal.count() > 0:
 			return {'headlines': headlines, 'normal': normal}
 		else:
 			queue = Queue()
@@ -81,23 +83,7 @@ class parsePage(Resource):
 			queue.put(crawler)
 			queue.put(crawler)
 			queue.join()
-			return {'headlines': headlines, 'normal': normal[0:14]}
-
-class nextPageWithSource(Resource):
-	def get(self, source, page):
-		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
-		if not source in URLs:
-			abort(404)
-		normal = mongo.db.normal.find({'source': source}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
-		if normal.count() > 0:
-			return {'normal': normal}
-
-class nextPageAll(Resource):
-	def get(self, page):
-		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
-		normal = mongo.db.normal.find().sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
-		if normal.count() > 0:
-			return {'normal': normal}
+			return {'headlines': headlines, 'normal': normal}
 			
 class parseNews(Resource):
 	def post(self):
@@ -125,9 +111,7 @@ class getThumbnail(Resource):
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
 api.add_resource(parseAllPage, '/api/news/')
-api.add_resource(nextPageAll, '/api/news&page=<int:page>/')
 api.add_resource(parsePage,'/api/news/<string:source>')
-api.add_resource(nextPageWithSource, '/api/news/<string:source>&page=<int:page>')
 api.add_resource(getThumbnail, '/api/thumbnails')
 if __name__ == '__main__':
 	app.run()
