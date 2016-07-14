@@ -37,7 +37,7 @@ def remove_news_caches():
 	db.details.drop()
 	client.close()
 
-@sched.scheduled_job('cron', day_of_week = 'sun-fri', hour = 22)
+@sched.scheduled_job('cron', day_of_week = 'mon-sun', hour = 22)
 def remove_everything():
 	client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 	db = client.heroku_gfp8zr4k
