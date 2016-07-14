@@ -1,5 +1,8 @@
 from pymongo import MongoClient
 
+def bsonToUser(bson):
+		return User(email = bson['_id'], name = bson['name'], is_authenticated = bson['status'], is_active = bson['activated'])
+
 class User:
 	def __init__(self, email, name, is_authenticated, is_active = True):
 		self.email = email
@@ -34,10 +37,6 @@ class User:
 			mongodb.Users.insert_one(userDict)
 			client.close()
 			return True
-
-	@staticmethod
-	def bsonToUser(bson):
-		return User(email = bson['_id'], name = bson['name'], is_authenticated = bson['status'], is_active = bson['activated'])
 
 	@staticmethod
 	def get(user_id):

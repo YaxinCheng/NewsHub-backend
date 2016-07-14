@@ -145,10 +145,10 @@ class login(Resource):
 		elif validateResult == False:
 			return {'ERROR': 'Email and password do not match'}
 		else:
-			user = mongo.db.Users.find({'_id': email})[0]
+			user = User.get(email)
 			user['status'] = True
-			user['activated'] = True
 			mongo.db.Users.update({'_id': email}, user)
+			login_user(user)
 			return user
 
 api.add_resource(index,'/')
