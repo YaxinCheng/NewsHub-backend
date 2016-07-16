@@ -10,6 +10,7 @@ from queue import Queue
 from NewsThread import NewsThread
 import json
 from User import User
+import hashlib
 
 def output_json(obj, code, headers = None):
 	resp = make_response(dumps(obj), code)
@@ -127,12 +128,13 @@ class register(Resource):
 		content = json.loads(json.dumps(request.get_json(force = True)))
 		email = content['email']
 		password = content['password']
+		registerTime = content['registerTime']
 		name = content['name']
-		result = User.register(email = email, name = name, password = password)
+		result = User.register(email = email, name = name, password = password, registerTime = registerTime)
 		if result == False:
 			return {"ERROR": "The email is already registered"}
 		else:
-			return {'Success': 'Register Successfully'}
+			return {'SUCCESS': 'Register Successfully'}
 
 class login(Resource):
 	def post(self):
@@ -141,15 +143,18 @@ class login(Resource):
 		password = content['password']
 		validateResult = User.validate(user_id = email, password = password)
 		if validateResult is None:
-			return {"ERROR": 'Email does not exist'}
+			return {"ERROR": 'Email and password do not match'}
 		elif validateResult == False:
 			return {'ERROR': 'Email and password do not match'}
 		else:
 			user = User.get(email)
-			user['status'] = True
-			mongo.db.Users.update({'_id': email}, user)
 			login_user(user)
-			return user
+
+			userinfo = mongo.db.Users.find({'_id': email})[0]
+			userinfo['status'] = True
+			userinfo['activated'] = True
+			mongo.db.Users.update({'_id': email}, userinfo)
+			return user.toDict()
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
