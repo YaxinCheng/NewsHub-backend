@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, make_response, abort
+from flask import Flask, request, make_response, abort, session
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
 from flask_login import LoginManager, login_required, login_user
@@ -148,6 +148,7 @@ class login(Resource):
 			return {'ERROR': 'Email and password do not match'}
 		else:
 			user = User.get(email)
+			session.permanent = True
 			login_user(user)
 
 			userinfo = mongo.db.Users.find({'_id': email})[0]
