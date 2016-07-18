@@ -102,9 +102,9 @@ class parseNews(Resource):
 	def post(self):
 		content = json.loads(json.dumps(request.get_json(force = True)))
 		url = content['url']
-		result = mongo.db.news.find({'_id': url})
+		result = mongo.db.details.find({'_id': url})
 		if result.count() > 0:
-			return result
+			return result[0]
 		source = content['source']
 		crawler = NewsContentCrawler(url = url, source = source)
 		details = crawler.process()
