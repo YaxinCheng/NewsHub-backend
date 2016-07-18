@@ -22,7 +22,7 @@ class User:
 		emptyDict['status'] = self.is_authenticated
 		emptyDict['activated'] = self.is_active
 		return emptyDict
-
+		
 	@staticmethod
 	def register(email, name, password, registerTime):
 		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')

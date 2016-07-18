@@ -59,7 +59,7 @@ class NewsContentCrawler:
 						if type(each) is bs4.element.NavigableString:
 							result += each
 						else:
-							result += each.string
+							result += each.string #ERROR HERE
 				index += 2
 		return result
 

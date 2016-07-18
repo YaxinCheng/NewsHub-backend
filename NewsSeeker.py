@@ -65,7 +65,8 @@ class NewsSeeker:
 			title = soup.h1.a.text
 			subtitle = soup.h2.text.strip()
 			subHeadlines = self.__processMetroSubHeadlines()
-			subHeadlines.insert(0, News(title = title, url = url, source = self.source, content = subtitle, img = img))
+			if self.__urlChecker(url = url):
+				subHeadlines.insert(0, News(title = title, url = url, source = self.source, content = subtitle, img = img))
 			return subHeadlines
 		elif self.source == 'chronicle':
 			headlinePattern = re.compile(self.headlinePatterns[self.source])
@@ -81,7 +82,10 @@ class NewsSeeker:
 				headlineIntro = self.__processChronicleHeadline(index = index)
 				soup = BeautifulSoup(headlineIntro, 'html.parser')
 				imgs.append(soup.a.img['src'])
-				urls.append('http://thechronicleherald.ca' + soup.a['href'])
+				url = soup.a['href']
+				if self.__urlChecker(url = url) == False:
+					continue
+				urls.append('http://thechronicleherald.ca' + url)
 				contents.append(soup.a.img['title'])
 			headlines = []
 			for index in range(len(titles)):
@@ -105,6 +109,8 @@ class NewsSeeker:
 					except:
 						img = ''
 				url = soup.li.a['href']
+				if self.__urlChecker(url = url) == False:
+					continue
 				title = soup.li.p.a.text if len(soup.li.a.text.strip()) == 0 else soup.li.a.text
 				content = ''
 				try:
@@ -114,6 +120,8 @@ class NewsSeeker:
 				news.append(News(title = title, img = img, url = url, source = self.source))
 			elif self.source == 'chronicle':
 				url = soup.div.span.a['href']
+				if self.__urlChecker(url = url) == False:
+					continue
 				imgLink, content = self.__moreInfoForChronicle(url)
 				if not ('http://' in url or 'https://' in url):
 					url = 'http://thechronicleherald.ca' + url
@@ -147,8 +155,18 @@ class NewsSeeker:
 		for each in result:
 			soup = BeautifulSoup(each.group(), 'html.parser')
 			url = soup.a['href']
+			if self.__urlChecker(url = url) == False:
+				continue
 			img = soup.img['data-original']
 			content = soup.img['alt']
 			title = soup.li.contents[len(soup.li.contents) - 2].text
 			news.append(News(title = title, url = url, img = img, content = content, source = self.source))
 		return news
+
+	def __urlChecker(self, url):
+		try:
+			urlCopy = '%s' % url
+			urlCopy.encode('UTF-8')
+			return True
+		except:
+			return False
