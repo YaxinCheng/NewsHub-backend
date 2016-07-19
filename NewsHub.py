@@ -79,7 +79,7 @@ class parsePage(Resource):
 		page = 1 if not 'page' in request.headers else int(request.headers['page'])
 		headlines = mongo.db.headlines.find({'source': source}) if page == 1 else None
 		normal = mongo.db.normal.find({'source': source}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
-		if (headliens is None or headlines.count() > 0) and normal.count() > 0:
+		if (headlines is None or headlines.count() > 0) and normal.count() > 0:
 			return {'headlines': headlines, 'normal': normal}
 		else:
 			queue = Queue()
