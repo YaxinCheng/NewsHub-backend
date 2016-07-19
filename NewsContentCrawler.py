@@ -44,7 +44,6 @@ class NewsContentCrawler:
 		content = self.__searchInfo(patternGroup = NewsContentCrawler.contentPatterns)
 		if self.source == 'chronicle':
 			content = content[51:]
-			print(content)
 		soup = BeautifulSoup(content, 'html.parser')
 		result = ''
 		if self.source == 'metro':
@@ -54,11 +53,15 @@ class NewsContentCrawler:
 				index += 2
 		elif self.source == 'chronicle':
 			index = 1
-			while index < len(soup.contents):
+			if len(soup.contents) == 1:
+				content = soup.div.contents
+			else:
+				content = soup.contents
+			while index < len(content):
 				try:
-					result += soup.contents[index].string + '\n'
+					result += content[index].string + '\n'
 				except TypeError:
-					for each in soup.contents[index].contents:
+					for each in content[index].contents:
 						if type(each) is bs4.element.NavigableString:
 							result += each
 						else:
