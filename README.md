@@ -20,7 +20,7 @@
   Parameters: <br>
   Headers: {'page': <int: number>}<br>
   	Page number (every 15 news in 1 page)<br>
-  Response: {'headlines': [], 'normal': []}<br>
+  Response: {'headlines': [.], 'normal': [.]}<br>
   <br>
   **News from specific source:**<br>
   Method: GET<br>
@@ -29,12 +29,52 @@
   Parameters: <br>
   Headers: {'page': <int: number>}<br>
   	Page number (every 15 news in 1 page)<br>
-  Response: <br>
+  Response: {'headlines': [.], 'normal': [.]}<br>
   <br>
-  **:**<br>
-  Method: <br>
-  Address: <br>
-  Parameters: <br>
+  **Content for specific news:**<br>
+  Method: POST<br>
+  Address: https://hubnews.herokuapp.com/api/details<br>
+  Parameters: {'url': '', 'source': ''}<br>
   Headers: <br>
-  Response: <br>
+  Response: {'content': '', 'img': '', 'tag': '', 'title': '', 'source': '', '_id': ''}<br>
+  	This response is a News JSON, where '_id' is URL and 'img' is an URL for the image<br>
   <br>
+  **Thumbnail for specific news:**<br>
+  Method: POST<br>
+  Address: https://hubnews.herokuapp.com/api/thumbnails<br>
+  Parameters: {'url': ''}<br>
+  	The URL should be the image url from the news<br>
+  Headers: <br>
+  Response: {'_id': '', 'img': ''}<br>
+  	The 'img' attribute contains a base64 encoded string which is the binary data of the image<br>
+  <br>
+  **Register:**<br>
+  Method: POST<br>
+  Address: https://hubnews.herokuapp.com/register<br>
+  Parameters: {'email': '', 'password': '', 'registerTime': '', 'name': ''}<br>
+  	Password will be encrypted on server side<br>
+  Headers: <br>
+  Response: {'ERROR': 'INFO'} or {'SUCCESS': 'INFO'}<br>
+  <br>
+  **Login:**<br>
+  Method: POST<br>
+  Address: https://hubnews.herokuapp.com/login<br>
+  Parameters: {'email': '', 'password': ''}<br>
+  Headers: <br>
+  Response: {'ERROR': 'INFO'} or {'_id': '', 'name': '', 'status': BOOL, 'activated': BOOL}<br>
+  	The success response is a User JSON
+  <br>
+  **Change password (Untested yet):**<br>
+  Method: POST (login required)<br>
+  Address: https://hubnews.herokuapp.com/uManage/password<br>
+  Parameters: {'email': '', 'password': ''}<br>
+  Headers: <br>
+  Response: {'ERROR': 'INFO'} or {'SUCCESS': 'INFO'}<br>
+  Note: User will be log out once the password is changed<br>
+  <br>
+
+###Packages dependency:
+  In the file requirements.txt
+
+There are some more coming<br>
+		-- Yaxin Cheng @July 19, 2016
