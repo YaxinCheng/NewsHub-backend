@@ -116,7 +116,3 @@ class NewsContentCrawler:
 		if len(minute) == 1:
 			minute = '0' + minute
 		return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':00-00:00'
-
-crawler = NewsContentCrawler(url = 'http://thechronicleherald.ca/novascotia/1380926-crosby-to-fans-who-wouldnt-want-to-come-home-to-this', source = 'chronicle')
-news = crawler.process()
-print(len(news.content))
