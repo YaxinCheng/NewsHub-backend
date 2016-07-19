@@ -148,8 +148,8 @@ class login(Resource):
 			return {'ERROR': 'Email and password do not match'}
 		else:
 			user = User.get(email)
+			session.permanent = True
 			login_user(user, remember = True)
-
 			userinfo = mongo.db.Users.find({'_id': email})[0]
 			userinfo['status'] = True
 			userinfo['activated'] = True
