@@ -6,7 +6,7 @@ from News import News
 
 class NewsContentCrawler:
 	contentPatterns = {'metro': '<div class="body parsys">(.*?|\s)*?<\/div>\s<\/div>',
-						'chronicle': '<div class="article-related-content-wrapper"><\/div>(.|\s)*?<\/div>'}
+						'chronicle': '<div class="article-related-content-wrapper">.*?<p>(.|\s)*?<\/div><!-- \/.article-body -->'}
 	titlePatterns = {'metro':'<div class="body parsys">(.*?|\s)*?<\/p>\s<\/div>', 'chronicle': '<h1 property="dc:title">.*<\/h1>'}
 	imgPatterns = {'metro': '<img src=".*?" alt=".*?" \/>\s*?<div class="caption">', 'chronicle': '<div class="main-image">\s*?<img src=".*?"'}
 	datePatterns = {'metro': '<meta property="article:published" itemprop="datePublished" content=".*?" \/>', 'chronicle': '<\/font>.*?<br \/>'}
@@ -42,31 +42,18 @@ class NewsContentCrawler:
 		if self.url is None or self.source is None:
 			raise ValueError
 		content = self.__searchInfo(patternGroup = NewsContentCrawler.contentPatterns)
-		if self.source == 'chronicle':
-			content = content[51:]
-		soup = BeautifulSoup(content, 'html.parser')
 		result = ''
 		if self.source == 'metro':
+			soup = BeautifulSoup(content, 'html.parser')
 			index = 2 # 0 is for title, and the content is only in the even indeces
 			while index < len(soup.div.contents):
 				result += soup.div.contents[index].p.text + '\n'
 				index += 2
 		elif self.source == 'chronicle':
-			index = 1
-			if len(soup.contents) == 1:
-				content = soup.div.contents
-			else:
-				content = soup.contents
-			while index < len(content):
-				try:
-					result += content[index].string + '\n'
-				except TypeError:
-					for each in content[index].contents:
-						if type(each) is bs4.element.NavigableString:
-							result += each
-						else:
-							result += each.string
-				index += 2
+			contentPattern = re.compile('<p>(.*?\s*?)*?<\/p>')
+			contents = re.finditer(contentPattern, content)
+			for each in contents:
+				result += each.group().strip('<p>').strip('</p>')
 		return result
 
 	def __title(self):
@@ -129,3 +116,7 @@ class NewsContentCrawler:
 		if len(minute) == 1:
 			minute = '0' + minute
 		return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':00-00:00'
+
+crawler = NewsContentCrawler(url = 'http://thechronicleherald.ca/novascotia/1380926-crosby-to-fans-who-wouldnt-want-to-come-home-to-this', source = 'chronicle')
+news = crawler.process()
+print(len(news.content))
