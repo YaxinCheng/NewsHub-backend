@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, make_response, abort, session
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
-from flask_login import LoginManager, login_required, login_user
+from flask_login import LoginManager, login_required, login_user, logout_user
 from bson.json_util import dumps
 from NewsContentCrawler import NewsContentCrawler
 from NewsSeeker import NewsSeeker
@@ -157,6 +157,25 @@ class login(Resource):
 			mongo.db.Users.update({'_id': email}, userinfo)
 			return user.toDict()
 
+class changePassword(Resource):
+	@login_required
+	def post(self):
+		content = json.loads(json.dumps(request.get_json(force = True)))
+		email = content['email']
+		password = content['password']
+		validateResult = User.validate(user_id = email, password = password)
+		if validateResult is None:
+			return {"ERROR": 'Email and password do not match'}
+		elif validateResult == False:
+			return {'ERROR': 'Email and password do not match'}
+		else:
+			logout_user()
+			user = User.get(email)
+			newPassword = content['newpassword']
+			time = content['time']
+			user.changePassword(newpassword = newpassword, time = time)
+			return {'SUCCESS': 'Password changed'}
+
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
 api.add_resource(parseAllPage, '/api/news/')
@@ -164,6 +183,7 @@ api.add_resource(parsePage,'/api/news/<string:source>')
 api.add_resource(getThumbnail, '/api/thumbnails')
 api.add_resource(register, '/register')
 api.add_resource(login, '/login')
+api.add_resource(changePassword, '/uManage/password')
 
 if __name__ == '__main__':
 	app.run()

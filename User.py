@@ -22,6 +22,18 @@ class User:
 		emptyDict['status'] = self.is_authenticated
 		emptyDict['activated'] = self.is_active
 		return emptyDict
+
+	def changePassword(self, newPassword, time):
+		passwordHash = hashlib.sha256()
+		passwordHash.update((self.email + time + newPassword).encode('UTF-8'))
+		password = passwordHash.hexdigest()
+		userDict = self.toDict()
+		userDict['password'] = password
+		userDict['registerTime'] = time
+		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		mongodb = client.heroku_gfp8zr4k
+		mongodb.Users.insert_one(userDict)
+		client.close()
 		
 	@staticmethod
 	def register(email, name, password, registerTime):

@@ -42,6 +42,9 @@ class NewsContentCrawler:
 		if self.url is None or self.source is None:
 			raise ValueError
 		content = self.__searchInfo(patternGroup = NewsContentCrawler.contentPatterns)
+		if self.source == 'chronicle':
+			content = content[51:]
+			print(content)
 		soup = BeautifulSoup(content, 'html.parser')
 		result = ''
 		if self.source == 'metro':
@@ -59,7 +62,7 @@ class NewsContentCrawler:
 						if type(each) is bs4.element.NavigableString:
 							result += each
 						else:
-							result += each.string #ERROR HERE
+							result += each.string
 				index += 2
 		return result
 
@@ -123,3 +126,6 @@ class NewsContentCrawler:
 		if len(minute) == 1:
 			minute = '0' + minute
 		return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':00-00:00'
+
+crawler = NewsContentCrawler(url = 'http://thechronicleherald.ca/novascotia/1381027-cape-split-rescue-has-emergency-personnel-talking-about-hiker-safety', source = 'chronicle')
+crawler.process()
