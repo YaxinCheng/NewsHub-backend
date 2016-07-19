@@ -126,6 +126,3 @@ class NewsContentCrawler:
 		if len(minute) == 1:
 			minute = '0' + minute
 		return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':00-00:00'
-
-crawler = NewsContentCrawler(url = 'http://thechronicleherald.ca/novascotia/1381027-cape-split-rescue-has-emergency-personnel-talking-about-hiker-safety', source = 'chronicle')
-crawler.process()
