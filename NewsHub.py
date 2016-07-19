@@ -122,8 +122,6 @@ class getThumbnail(Resource):
 			return {'Error': 'image not found'}
 
 class register(Resource):
-	def get(self):
-		return {'Requirement': 'Hash your password before posting'}
 	def post(self):
 		content = json.loads(json.dumps(request.get_json(force = True)))
 		email = content['email']
