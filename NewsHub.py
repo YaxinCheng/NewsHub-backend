@@ -135,7 +135,7 @@ class changePassword(Resource):
 
 class locations(Resource):
 	def get(self):
-		return {'locations': ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']}
+		return {'locations': ['Halifax', 'Calgary', 'Edmonton', 'Ottawa', 'Toronto', 'Vancouver', 'Winnipeg']}
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
