@@ -14,12 +14,17 @@ class NewsContentCrawler:
 	def __init__(self, url, source):
 		self.url = url
 		self.source = source
+		self.location = 'halifax'
+		locations = ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']
+		for location in locations:
+			if location in self.url:
+				self.location = location
 
 	def process(self, content = True, img = True):
 		self.data = self.__webInfo()
 		title = self.__title()
 		date = self.__date()
-		news = News(title = title, source = self.source, url = self.url, date = date)
+		news = News(title = title, source = self.source, url = self.url, date = date, location = self.location)
 		if content == True:
 			news.content = self.__content()
 		if img == True:
