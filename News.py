@@ -1,11 +1,12 @@
 class News:
-	def __init__(self, title, source, url, date = '', content = '', img = ''):
+	def __init__(self, title, source, url, location, date = '', content = '', img = ''):
 		self.title = title
 		self.source = source
 		self.url = url
 		self.date = date
 		self.content = content
 		self.img = img
+		self.location = location
 		self.tag = self.__tag()
 
 	def toDict(self):
@@ -15,6 +16,7 @@ class News:
 		emptyDict['_id'] = self.url
 		emptyDict['content'] = self.content
 		emptyDict['img'] = self.img
+		emptyDict['location'] = self.location
 		emptyDict['tag'] = self.tag
 		if len(self.date) > 0:
 			emptyDict['date'] = self.date

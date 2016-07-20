@@ -4,7 +4,14 @@ from NewsThread import NewsThread
 from queue import Queue
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
+URLs = ['http://www.metronews.ca/halifax.html',
+	'http://www.metronews.ca/calgary.html', 
+	'http://www.metronews.ca/edmonton.html', 
+	'http://www.metronews.ca/winnipeg.html',
+	'http://www.metronews.ca/ottawa.html',
+	'http://www.metronews.ca/toronto.html',
+	'http://www.metronews.ca/vancouver.html', 
+	'http://thechronicleherald.ca/']
 sched = BlockingScheduler()
 
 @sched.scheduled_job('interval', hours = 2)
@@ -14,20 +21,22 @@ def refresh_news():
 	db.images.drop()
 	headlines = []
 	normal = []
-	queue = Queue()
+	queues = []
 	for index in range(2 * len(URLs)):
+		queue = Queue()
 		if index % 2 == 0:
 			newsThread = NewsThread(queue = queue, storage = headlines, field = 'headlines')
 		else:
-			newsThread = NewsThread(queue = queue, storage = normal, field = 'normal')			
+			newsThread = NewsThread(queue = queue, storage = normal, field = 'normal')
 		newsThread.daemon = True
 		newsThread.start()
-	for eachKey in URLs.keys():
-		url = URLs[eachKey]
-		seeker = NewsSeeker(url = url, source = eachKey)
+		url = URLs[int(index / 2)]
+		source = 'metro' if 'metro' in url else 'chronicle'
+		seeker = NewsSeeker(url = url, source = source)
 		queue.put(seeker)
-		queue.put(seeker)
-	queue.join()
+		queues.append(queue)
+	for queue in queues:
+		queue.join()
 	client.close()
 
 @sched.scheduled_job('cron', day_of_week = 'fri', hour = 17)

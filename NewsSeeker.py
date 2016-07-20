@@ -14,6 +14,12 @@ class NewsSeeker:
 	def __init__(self, url, source):
 		self.url = url
 		self.source = source
+		self.location = 'halifax'
+		allLocations = ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']
+		for each in allLocations:
+			if each in self.url:
+				self.location = each
+				break
 
 	def process(self, headlines = True, normal = True):
 		self.data = self.__webInfo()
@@ -63,10 +69,13 @@ class NewsSeeker:
 			url = soup.a['href']
 			img = soup.img['data-original']
 			title = soup.h1.a.text
-			subtitle = soup.h2.text.strip()
+			try:
+				subtitle = soup.h2.text.strip()
+			except AttributeError:
+				subtitle = ""
 			subHeadlines = self.__processMetroSubHeadlines()
 			if self.__urlChecker(url = url):
-				subHeadlines.insert(0, News(title = title, url = url, source = self.source, content = subtitle, img = img))
+				subHeadlines.insert(0, News(title = title, url = url, source = self.source, content = subtitle, img = img, location = self.location))
 			return subHeadlines
 		elif self.source == 'chronicle':
 			headlinePattern = re.compile(self.headlinePatterns[self.source])
@@ -89,7 +98,7 @@ class NewsSeeker:
 				contents.append(soup.a.img['title'])
 			headlines = []
 			for index in range(len(titles)):
-				headlines.append(News(title = titles[index], url = urls[index], source = self.source, content = contents[index], img = imgs[index] if len(imgs) > index else ''))
+				headlines.append(News(title = titles[index], url = urls[index], source = self.source, content = contents[index], location = self.location, img = imgs[index] if len(imgs) > index else ''))
 			return headlines
 
 	def __normalNews(self):
@@ -117,7 +126,7 @@ class NewsSeeker:
 					content = soup.li.img['alt']
 				except: 
 					pass
-				news.append(News(title = title, img = img, url = url, source = self.source))
+				news.append(News(title = title, img = img, url = url, location = self.location, source = self.source))
 			elif self.source == 'chronicle':
 				url = soup.div.span.a['href']
 				if self.__urlChecker(url = url) == False:
@@ -126,7 +135,7 @@ class NewsSeeker:
 				if not ('http://' in url or 'https://' in url):
 					url = 'http://thechronicleherald.ca' + url
 				title = soup.div.span.a.text
-				news.append(News(title = title, url = url, source = self.source, content = content, img = imgLink))
+				news.append(News(title = title, url = url, source = self.source, content = content, location = self.location, img = imgLink))
 		return news
 
 	def __moreInfoForChronicle(self, url):
@@ -160,7 +169,7 @@ class NewsSeeker:
 			img = soup.img['data-original']
 			content = soup.img['alt']
 			title = soup.li.contents[len(soup.li.contents) - 2].text
-			news.append(News(title = title, url = url, img = img, content = content, source = self.source))
+			news.append(News(title = title, url = url, img = img, location = self.location, content = content, source = self.source))
 		return news
 
 	def __urlChecker(self, url):
