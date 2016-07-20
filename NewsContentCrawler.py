@@ -3,6 +3,7 @@ import bs4
 from bs4 import BeautifulSoup
 import re
 from News import News
+import html
 
 class NewsContentCrawler:
 	contentPatterns = {'metro': '<div class="body parsys">(.*?|\s)*?<\/div>\s<\/div>',
@@ -22,11 +23,11 @@ class NewsContentCrawler:
 
 	def process(self, content = True, img = True):
 		self.data = self.__webInfo()
-		title = self.__title()
+		title = html.unescape(self.__title())
 		date = self.__date()
 		news = News(title = title, source = self.source, url = self.url, date = date, location = self.location)
 		if content == True:
-			news.content = self.__content()
+			news.content = html.unescape(self.__content())
 		if img == True:
 			news.img = self.__image()
 		return news
