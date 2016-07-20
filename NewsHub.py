@@ -46,7 +46,7 @@ class index(Resource):
 class parseAllPage(Resource):
 	def get(self):
 		page = 1 if not 'page' in request.headers else int(request.headers['page'])
-		location = 'edmonton' if not 'location' in request.headers else request.headers['location']
+		location = 'halifax' if not 'location' in request.headers else request.headers['location']
 		headlines = mongo.db.headlines.find({'$or': [{'location': location}, {'source': 'chronicle'}]}) if page == 1 else None
 		normal = mongo.db.normal.find({'location': location}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
 		return {'headlines': headlines, 'normal': normal}
@@ -135,7 +135,7 @@ class changePassword(Resource):
 
 class locations(Resource):
 	def get(self):
-		return ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']
+		return {'locations': ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']}
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
@@ -145,6 +145,7 @@ api.add_resource(getThumbnail, '/api/thumbnails')
 api.add_resource(register, '/register')
 api.add_resource(login, '/login')
 api.add_resource(changePassword, '/uManage/password')
+api.add_resource(locations, '/locations')
 
 if __name__ == '__main__':
 	app.run()
