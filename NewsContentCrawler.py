@@ -47,8 +47,18 @@ class NewsContentCrawler:
 	def __content(self):
 		if self.url is None or self.source is None:
 			raise ValueError
-		content = self.__searchInfo(patternGroup = NewsContentCrawler.contentPatterns)
 		result = ''
+		try:
+			content = self.__searchInfo(patternGroup = NewsContentCrawler.contentPatterns)
+		except ValueError:
+			if self.source == 'metro':
+				pattern = re.compile('<div class="text combinedtext parbase section">(\s*?.*?)*?<\/div>')
+				content = re.finditer(pattern, self.data)
+				for each in content:
+					if not each is None:
+						soup = BeautifulSoup(each.group(), 'html.parser')
+						result += '\t' + soup.div.p.string + '\n\n'
+			return result
 		if self.source == 'metro':
 			soup = BeautifulSoup(content, 'html.parser')
 			index = 2 # 0 is for title, and the content is only in the even indeces
@@ -68,7 +78,13 @@ class NewsContentCrawler:
 	def __title(self):
 		if self.url is None or self.source is None:
 			raise ValueError
-		title = self.__searchInfo(patternGroup = NewsContentCrawler.titlePatterns)
+		try:
+			title = self.__searchInfo(patternGroup = NewsContentCrawler.titlePatterns)
+		except ValueError:
+			if self.source == 'metro':
+				title = self.__searchInfo(patternGroup = {'metro': '<title>.*?<\/title>'})
+				title = title.replace('<title>', '').replace(' | Metro News</title>', '')
+				return title
 		soup = BeautifulSoup(title, 'html.parser')
 		if self.source == 'metro':
 			return soup.div.div.p.text
