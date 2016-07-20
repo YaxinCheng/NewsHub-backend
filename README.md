@@ -64,6 +64,7 @@
   Response: {'ERROR': 'INFO'} or {'_id': '', 'name': '', 'status': BOOL, 'activated': BOOL}<br>
   	The success response is a User JSON
   <br>
+  <br>
   **Change password (Untested yet):**<br>
   Method: POST (login required)<br>
   Address: https://hubnews.herokuapp.com/uManage/password<br>
