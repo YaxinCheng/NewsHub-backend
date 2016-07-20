@@ -135,7 +135,7 @@ class changePassword(Resource):
 
 class locations(Resource):
 	def get(self):
-		return {'locations': ['Halifax', 'Calgary', 'Edmonton', 'Ottawa', 'Toronto', 'Vancouver', 'Winnipeg']}
+		return {'locations': ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']}
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
@@ -145,7 +145,7 @@ api.add_resource(getThumbnail, '/api/thumbnails')
 api.add_resource(register, '/register')
 api.add_resource(login, '/login')
 api.add_resource(changePassword, '/uManage/password')
-api.add_resource(locations, '/locations')
+api.add_resource(locations, '/api/locations')
 
 if __name__ == '__main__':
 	app.run()

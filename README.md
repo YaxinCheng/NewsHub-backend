@@ -18,7 +18,7 @@
   Method: GET<br>
   Address: https://hubnews.herokuapp.com/api/news<br>
   Parameters: <br>
-  Headers: {'page': <int: number>}<br>
+  Headers: {'page': <int: number>, 'location': <string: location>}<br>
   	Page number (every 15 news in 1 page)<br>
   Response: {'headlines': [.], 'normal': [.]}<br>
   <br>
@@ -27,7 +27,7 @@
   Address: https://hubnews.herokuapp.com/api/news/<string: source><br>
   	source can be 'metro' or 'chronicle'<br>
   Parameters: <br>
-  Headers: {'page': <int: number>}<br>
+  Headers: {'page': <int: number>, 'location': <string: location>}<br>
   	Page number (every 15 news in 1 page)<br>
   Response: {'headlines': [.], 'normal': [.]}<br>
   <br>
@@ -72,6 +72,13 @@
   Headers: <br>
   Response: {'ERROR': 'INFO'} or {'SUCCESS': 'INFO'}<br>
   Note: User will be log out once the password is changed<br>
+  <br>
+  **Get available locations:**<br>
+  Method: GET<br>
+  Address: https://hubnews.herokuapp.com/api/locations<br>
+  Parameters: <br>
+  Headers: <br>
+  Response: {'location': []}<br>
   <br>
 
 ###Packages dependency:
