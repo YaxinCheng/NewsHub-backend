@@ -29,7 +29,7 @@ class NewsThread(threading.Thread):
 					except:
 						continue
 					if not len(news['img']) == 0 and '.jpg' in news['img']:
-						self.__generateThumbnail(url = news['img'], resolution = (500, 500))
+						self.__generateThumbnail(url = news['img'], resolution = (700, 700))
 			elif self.field == 'normal':
 				result = seeker.process(headlines = False)
 				self.storage += list(result)
