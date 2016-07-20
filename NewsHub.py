@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, make_response, abort, session
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from bson.json_util import dumps
 from NewsContentCrawler import NewsContentCrawler
 from NewsSeeker import NewsSeeker
@@ -45,58 +45,19 @@ class index(Resource):
 
 class parseAllPage(Resource):
 	def get(self):
-		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
 		page = 1 if not 'page' in request.headers else int(request.headers['page'])
-		headlines = mongo.db.headlines.find() if page == 1 else None
-		normal = mongo.db.normal.find().sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
-		if (headlines is None or headlines.count() > 0) and normal.count() > 0:
-			return {'headlines': headlines, 'normal': normal}
-		else:
-			queue = Queue()
-			headlines = []
-			normal = []
-			for source in URLs.keys():
-				url = URLs[source]
-				crawler = NewsSeeker(url = url, source = source)
-				headlinesThread = NewsThread(queue = queue, storage = headlines, field = 'headlines')
-				headlinesThread.daemon = True
-				headlinesThread.start()
-				
-				normalThread = NewsThread(queue = queue, storage = normal, field = 'normal')
-				normalThread.daemon = True
-				normalThread.start()
-
-				queue.put(crawler)
-				queue.put(crawler)
-			queue.join()
-			return {'headlines': headlines, 'normal': normal}
+		location = 'edmonton' if not 'location' in request.headers else request.headers['location']
+		headlines = mongo.db.headlines.find({'$or': [{'location': location}, {'source': 'chronicle'}]}) if page == 1 else None
+		normal = mongo.db.normal.find({'location': location}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
+		return {'headlines': headlines, 'normal': normal}
 
 class parsePage(Resource):
 	def get(self, source):
-		URLs = {'metro': 'http://www.metronews.ca/halifax.html', 'chronicle': 'http://thechronicleherald.ca/'}
-		if not source in URLs:
-			abort(404)
 		page = 1 if not 'page' in request.headers else int(request.headers['page'])
-		headlines = mongo.db.headlines.find({'source': source}) if page == 1 else None
-		normal = mongo.db.normal.find({'source': source}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
-		if (headlines is None or headlines.count() > 0) and normal.count() > 0:
-			return {'headlines': headlines, 'normal': normal}
-		else:
-			queue = Queue()
-			headlines = []
-			normal = []
-			url = URLs[source]
-			crawler = NewsSeeker(url = url, source = source)
-			headlinesThread = NewsThread(queue = queue, storage = headlines, field = 'headlines')
-			headlinesThread.daemon = True
-			headlinesThread.start()
-			normalThread = NewsThread(queue = queue, storage = normal, field = 'normal')
-			normalThread.daemon = True
-			normalThread.start()
-			queue.put(crawler)
-			queue.put(crawler)
-			queue.join()
-			return {'headlines': headlines, 'normal': normal}
+		location = 'halifax' if not 'location' in request.headers else request.headers['location']
+		headlines = mongo.db.headlines.find({'or': [{'location': location}, {'source': 'chronicle'}]}) if page == 1 else None
+		normal = mongo.db.normal.find({'location': location}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
+		return {'headlines': headlines, 'normal': normal}
 			
 class parseNews(Resource):
 	def post(self):
@@ -157,7 +118,7 @@ class changePassword(Resource):
 	@login_required
 	def post(self):
 		content = json.loads(json.dumps(request.get_json(force = True)))
-		email = content['email']
+		email = current_user.email
 		password = content['password']
 		validateResult = User.validate(user_id = email, password = password)
 		if validateResult is None:
@@ -171,6 +132,10 @@ class changePassword(Resource):
 			time = content['time']
 			user.changePassword(newpassword = newpassword, time = time)
 			return {'SUCCESS': 'Password changed'}
+
+class locations(Resource):
+	def get(self):
+		return ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
