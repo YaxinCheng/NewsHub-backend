@@ -29,7 +29,7 @@ class NewsContentCrawler:
 		if content == True:
 			news.content = html.unescape(self.__content())
 		if img == True:
-			news.img = self.__image()
+			news.img = self.image()
 		return news
 
 	def __webInfo(self):
@@ -89,7 +89,7 @@ class NewsContentCrawler:
 		elif self.source == 'chronicle':
 			return soup.h1.text
 
-	def __image(self):
+	def image(self):
 		if self.url is None or self.source is None:
 			raise ValueError
 		try:
