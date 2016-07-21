@@ -1,11 +1,13 @@
 import threading
 from NewsSeeker import NewsSeeker
+from NewsContentCrawler import NewsContentCrawler
 from pymongo import MongoClient
 import pymongo
 import requests
 from PIL import Image
 from io import BytesIO
 import base64
+import urllib.request
 
 class NewsThread(threading.Thread):
 	def __init__(self, queue, storage, field):
@@ -35,12 +37,22 @@ class NewsThread(threading.Thread):
 				self.storage += list(result)
 				self.mongo.normal.delete_many({'source': seeker.source})
 				for news in result:
+					check = self.mongo.normal.find({'_id': news['_id']})
+					if check.count() > 0:
+						continue
+					if not len(news['img']) == 0:
+						self.__generateThumbnail(url = news['img'], resolution = (150, 150))
+					else:
+						crawler = NewsContentCrawler(url = news['_id'], source = news['source'])
+						crawler.data = urllib.request.urlopen(crawler.url).read().decode('UTF-8')
+						img = crawler.image()
+						if len(img) > 0:
+							self.__generateThumbnail(url = img, resolution = (150, 150))
+							news['img'] = img
 					try:
 						self.mongo.normal.insert_one(news)
 					except:
 						continue
-					if not len(news['img']) == 0:
-						self.__generateThumbnail(url = news['img'], resolution = (150, 150))
 			self.queue.task_done()		
 
 	def __generateThumbnail(self, url, resolution):
