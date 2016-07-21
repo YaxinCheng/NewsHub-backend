@@ -11,6 +11,8 @@ from NewsThread import NewsThread
 import json
 from User import User
 import hashlib
+import datetime
+from Comment import Comment
 
 def output_json(obj, code, headers = None):
 	resp = make_response(dumps(obj), code)
@@ -136,6 +138,30 @@ class changePassword(Resource):
 class locations(Resource):
 	def get(self):
 		return {'locations': ['halifax', 'calgary', 'edmonton', 'ottawa', 'toronto', 'vancouver', 'winnipeg']}
+
+class comments(Resource):
+	def post(self):
+		content = json.loads(json.dumps(request.get_json(force = True)))
+		page = 1 if not 'page' in request.headers else int(request.headers['page'])
+		url = content['url']
+		comment = mongo.db.comments.find({'_id': url}).sort({'time': 1}).limit(30).skip((page - 1) * 30)
+		return {'comments': comment}
+
+	@login_required
+	def put(self):
+		JSON = json.loads(json.dumps(request.get_json(force = True)))
+		url = JSON['url']
+		userID = JSON['ID']
+		name = JSON['name']
+		content = JSON['content']
+		time = str(datetime.datetime.now())
+		comment = Comment(ID = userID, name = name, content = content, time = time)
+		check = mongo.db.comments.find({'_id': url})
+		if check.count() > 0:
+			mongo.db.comments.update({'_id': url}, {'$push': {'comments': comment.toDict()}})
+		else:
+			mongo.db.comments.insert({'_id': url, 'comments': [comment.toDict()]})
+		return {'SUCCESS': 'New Comment Updated'}
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
