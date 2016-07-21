@@ -61,10 +61,8 @@ class NewsContentCrawler:
 			return result
 		if self.source == 'metro':
 			soup = BeautifulSoup(content, 'html.parser')
-			index = 2 # 0 is for title, and the content is only in the even indeces
-			while index < len(soup.div.contents):
-				result += soup.div.contents[index].p.text.strip() + '\n\n'
-				index += 2
+			for each in soup.div.find_all('p'):
+				result += each.string.strip() + '\n\n'
 		elif self.source == 'chronicle':
 			contentPattern = re.compile('<p>(.*?\s*?)*?<\/p>')
 			contents = re.finditer(contentPattern, content)
