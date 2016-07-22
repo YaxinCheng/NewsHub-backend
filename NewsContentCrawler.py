@@ -135,7 +135,3 @@ class NewsContentCrawler:
 		if len(minute) == 1:
 			minute = '0' + minute
 		return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':00-00:00'
-
-crawler = NewsContentCrawler(url = 'http://www.metronews.ca/features/vancouver/vancouvering/2016/07/21/green-party-andrew-weaver-calls-for-bc-hydro-reform.html', source = 'metro')
-news = crawler.process()
-print(news.content)
