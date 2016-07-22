@@ -59,19 +59,15 @@ class NewsContentCrawler:
 						soup = BeautifulSoup(each.group(), 'html.parser')
 						result += soup.div.p.string.strip() + '\n\n'
 			return result
-		if self.source == 'metro':
-			soup = BeautifulSoup(content, 'html.parser')
-			for each in soup.div.find_all('p'):
-				result += each.string.strip() + '\n\n'
-		elif self.source == 'chronicle':
-			contentPattern = re.compile('<p>(.*?\s*?)*?<\/p>')
-			contents = re.finditer(contentPattern, content)
-			for each in contents:
-				temp = each.group().strip('<p>').strip('</p>')
-				if '<p>' in temp:
-					temp = temp.split('<p>')[1]
-				result += temp.strip() + '\n\n'
-		return result
+		contentPattern = re.compile('<p.*?>(.*?\s*?)*?<\/p>')
+		contents = re.finditer(contentPattern, content)
+		for each in contents:
+			temp = re.sub('<p.*?>', '', each.group())
+			temp = re.sub('<\/p.*?>', '', temp)
+			result += temp.strip() + '\n\n'
+		result = re.sub('<.+>', '', result)
+		result = re.sub('<\/.+>', '', result)
+		return result.strip()
 
 	def __title(self):
 		if self.url is None or self.source is None:
@@ -139,3 +135,7 @@ class NewsContentCrawler:
 		if len(minute) == 1:
 			minute = '0' + minute
 		return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':00-00:00'
+
+crawler = NewsContentCrawler(url = 'http://www.metronews.ca/features/vancouver/vancouvering/2016/07/21/green-party-andrew-weaver-calls-for-bc-hydro-reform.html', source = 'metro')
+news = crawler.process()
+print(news.content)
