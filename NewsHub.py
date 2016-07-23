@@ -116,6 +116,12 @@ class login(Resource):
 			mongo.db.Users.update({'_id': email}, userinfo)
 			return user.toDict()
 
+class logout(Resource):
+	@login_required
+	def get(self):
+		logout_user()
+		return {'SUCCESS': 'You have logged out'}
+
 class changePassword(Resource):
 	@login_required
 	def post(self):
