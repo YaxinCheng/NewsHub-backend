@@ -178,6 +178,7 @@ api.add_resource(register, '/register')
 api.add_resource(login, '/login')
 api.add_resource(changePassword, '/uManage/password')
 api.add_resource(locations, '/api/locations')
+api.add_resource(logout, '/logout')
 
 if __name__ == '__main__':
 	app.run()
