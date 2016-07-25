@@ -157,8 +157,8 @@ class comments(Resource):
 	def put(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		url = JSON['url']
-		userID = JSON['ID']
-		name = JSON['name']
+		userID = current_user.email
+		name = current_user.name
 		content = JSON['content']
 		time = str(datetime.datetime.now())
 		comment = Comment(ID = userID, name = name, content = content, time = time)
@@ -177,7 +177,7 @@ api.add_resource(getThumbnail, '/api/thumbnails')
 api.add_resource(register, '/register')
 api.add_resource(login, '/login')
 api.add_resource(changePassword, '/uManage/password')
-api.add_resource(locations, '/api/locations')
+api.add_resource(locations, '/api/locations/')
 api.add_resource(logout, '/logout')
 
 if __name__ == '__main__':
