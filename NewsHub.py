@@ -130,9 +130,9 @@ class changePassword(Resource):
 		password = content['password']
 		validateResult = User.validate(user_id = email, password = password)
 		if validateResult is None:
-			return {"ERROR": 'Email and password do not match'}
+			return {"ERROR": 'Old password is not correct'}
 		elif validateResult == False:
-			return {'ERROR': 'Email and password do not match'}
+			return {'ERROR': 'Old password is not correct'}
 		else:
 			logout_user()
 			user = User.get(email)
@@ -177,7 +177,7 @@ api.add_resource(getThumbnail, '/api/thumbnails')
 api.add_resource(register, '/register')
 api.add_resource(login, '/login')
 api.add_resource(changePassword, '/uManage/password')
-api.add_resource(locations, '/api/locations/')
+api.add_resource(locations, '/api/locations')
 api.add_resource(logout, '/logout')
 
 if __name__ == '__main__':
