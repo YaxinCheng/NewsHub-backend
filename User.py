@@ -32,7 +32,7 @@ class User:
 		userDict['registerTime'] = time
 		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		mongodb.Users.insert_one(userDict)
+		mongodb.Users.update({'_id': userDict['_id']}, userDict)
 		client.close()
 		
 	@staticmethod
