@@ -138,7 +138,7 @@ class changePassword(Resource):
 			user = User.get(email)
 			newPassword = content['newpassword']
 			time = content['time']
-			user.changePassword(newpassword = newpassword, time = time)
+			user.changePassword(newPassword = newPassword, time = time)
 			return {'SUCCESS': 'Password changed'}
 
 class locations(Resource):
