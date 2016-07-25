@@ -65,13 +65,21 @@
   	The success response is a User JSON
   <br>
   <br>
-  **Change password (Untested yet):**<br>
+  **Change password:**<br>
   Method: POST (login required)<br>
   Address: https://hubnews.herokuapp.com/uManage/password<br>
   Parameters: {'email': '', 'password': ''}<br>
   Headers: <br>
   Response: {'ERROR': 'INFO'} or {'SUCCESS': 'INFO'}<br>
   Note: User will be log out once the password is changed<br>
+  <br>
+  <br>
+  **Log out***<br>
+  Method: GET (login required)<br>
+  Address: https://hubnews.herokuapp.com/logout<br>
+  Parameters:<br>
+  Headers:<br>
+  Response: {'SUCCESS': 'INFO'}
   <br>
   **Get available locations:**<br>
   Method: GET<br>
