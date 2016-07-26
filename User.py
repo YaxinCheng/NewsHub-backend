@@ -37,7 +37,13 @@ class User:
 		mongodb = client.heroku_gfp8zr4k
 		mongodb.Users.update({'_id': self.email}, {'$set': {'name': name}})
 		client.close()
-		
+
+	def like(self, news):
+		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		mongodb = client.heroku_gfp8zr4k
+		mongodb.Users.update({'_id': self.email}, {'$addToSet': {'liked': news}})
+		client.close()
+
 	@staticmethod
 	def register(email, name, password, registerTime):
 		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
