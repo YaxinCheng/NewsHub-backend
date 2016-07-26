@@ -78,7 +78,7 @@
   Address: https://hubnews.herokuapp.com/logout<br>
   Parameters:<br>
   Headers:<br>
-  Response: {'SUCCESS': 'INFO'}
+  Response: {'SUCCESS': 'INFO'}<br>
   <br>
   **Get available locations:**<br>
   Method: GET<br>
