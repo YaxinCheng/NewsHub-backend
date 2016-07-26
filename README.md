@@ -73,8 +73,7 @@
   Response: {'ERROR': 'INFO'} or {'SUCCESS': 'INFO'}<br>
   Note: User will be log out once the password is changed<br>
   <br>
-  <br>
-  **Log out***<br>
+  **Log out**<br>
   Method: GET (login required)<br>
   Address: https://hubnews.herokuapp.com/logout<br>
   Parameters:<br>
