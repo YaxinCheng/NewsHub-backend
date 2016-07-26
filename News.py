@@ -18,6 +18,7 @@ class News:
 		emptyDict['img'] = self.img
 		emptyDict['location'] = self.location
 		emptyDict['tag'] = self.tag
+		emptyDict['liked'] = 0
 		if len(self.date) > 0:
 			emptyDict['date'] = self.date
 		return emptyDict

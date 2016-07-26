@@ -6,7 +6,6 @@ from flask_login import LoginManager, login_required, login_user, logout_user, c
 from bson.json_util import dumps
 from NewsContentCrawler import NewsContentCrawler
 from NewsSeeker import NewsSeeker
-from queue import Queue
 from NewsThread import NewsThread
 import json
 from User import User
@@ -41,7 +40,6 @@ def load_user(user_id):
 	return User.get(user_id)
 
 class index(Resource):
-	@login_required
 	def get(self):
 		return {"Hello": "World"}
 
@@ -49,7 +47,7 @@ class parseAllPage(Resource):
 	def get(self):
 		page = 1 if not 'page' in request.headers else int(request.headers['page'])
 		location = 'halifax' if not 'location' in request.headers else request.headers['location']
-		headlines = mongo.db.headlines.find({'$or': [{'location': location}, {'source': 'chronicle'}]}) if page == 1 else None
+		headlines = mongo.db.headlines.find({'or': [{'location': location}, {'source': 'chronicle'}]}) if page == 1 else None
 		normal = mongo.db.normal.find({'location': location}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
 		return {'headlines': headlines, 'normal': normal}
 
@@ -174,12 +172,54 @@ class comments(Resource):
 			mongo.db.comments.insert({'_id': url, 'comments': [comment.toDict()]})
 		return {'SUCCESS': 'New Comment Updated'}
 
+class like(Resource):
+	@login_required
+	def get(self):
+		userID = current_user.email
+		result = mongo.db.Users.find({'_id': userID}, {'liked': 1, '_id': 0})
+		if result.count() > 0:
+			return {'SUCCESS': result}
+		return {'ERROR': 'No news is liked'}
+
+	@login_required
+	def put(self):
+		JSON = json.loads(json.dumps(request.get_json(force = True)))
+		newsurl = JSON['url']
+		news = mongo.db.headlines.find({'_id': newsurl}, {'_id': 1, 'title': 1, 'img': 1})
+		if news.count() > 0:
+			current_user.like(news[0])
+			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {'liked': 1}})
+			return {'SUCCESS': 'News liked'}
+		else:
+			news = mongo.db.normal.find({'_id': newsurl}, {'_id': 1, 'title': 1, 'img': 1})
+			if news.count() > 0:
+				current_user.like(news[0])
+				mongo.db.normal.update({'_id': newsurl}, {'$inc': {'liked': 1}})
+				return {'SUCCESS': 'News liked'}
+		return {'ERROR': 'Unable to find the news'}
+
+	@login_required
+	def post(self):
+		JSON = json.loads(json.dumps(request.get_json(force = True)))
+		newsurl = JSON['url']
+		mongo.db.Users.update({'_id': current_user.email}, {'$pull': {'liked': {'_id': newsurl}}})
+		news = mongo.db.headlines.find({'_id': newsurl})
+		if news.count() > 0:
+			mongo.db.headlines.update({'_id':newsurl}, {'$inc': {'liked': -1}})
+			return {'SUCCESS': 'Removed the news from liked'}
+		else:
+			mongo.db.normal.update({'_id':newsurl}, {'$inc': {'liked': -1}})
+			return {'SUCCESS': 'Removed the news from liked'}
+		return {'ERROR': 'Cannot find the news'}
+	
+
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
 api.add_resource(parseAllPage, '/api/news/')
 api.add_resource(parsePage,'/api/news/<string:source>')
 api.add_resource(getThumbnail, '/api/thumbnails')
 api.add_resource(locations, '/api/locations')
+api.add_resource(like, '/api/likes')
 api.add_resource(register, '/register')
 api.add_resource(login, '/login')
 api.add_resource(logout, '/logout')
