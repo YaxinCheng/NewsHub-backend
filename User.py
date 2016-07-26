@@ -27,12 +27,15 @@ class User:
 		passwordHash = hashlib.sha256()
 		passwordHash.update((self.email + time + newPassword).encode('UTF-8'))
 		password = passwordHash.hexdigest()
-		userDict = self.toDict()
-		userDict['password'] = password
-		userDict['registerTime'] = time
 		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		mongodb.Users.update({'_id': userDict['_id']}, userDict)
+		mongodb.Users.update({'_id': userDict['_id']}, {'$set': {'password': password}})
+		client.close()
+
+	def changeUsername(self, name):
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
+		mongodb = client.heroku_gfp8zr4k
+		mongodb.Users.update({'_id': self.email}, {'$set': {'name': name}})
 		client.close()
 		
 	@staticmethod
@@ -59,7 +62,7 @@ class User:
 	def get(user_id):
 		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		result = mongodb.Users.find({'_id': user_id})
+		result = mongodb.Users.find({'_id': user_id}, {'registerTime': 0, 'password': 0})
 		client.close()
 		if result.count() > 0:
 			return bsonToUser(bson = result[0])
@@ -68,7 +71,7 @@ class User:
 	def validate(user_id, password):
 		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		result = mongodb.Users.find({'_id': user_id})
+		result = mongodb.Users.find({'_id': user_id}, {'_id': 1, 'password': 1, 'registerTime': 1})
 		client.close()
 		if result.count() > 0:
 			bson = result[0]

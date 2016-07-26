@@ -110,10 +110,7 @@ class login(Resource):
 		else:
 			user = User.get(email)
 			login_user(user, remember = True)
-			userinfo = mongo.db.Users.find({'_id': email})[0]
-			userinfo['status'] = True
-			userinfo['activated'] = True
-			mongo.db.Users.update({'_id': email}, userinfo)
+			mongo.db.Users.update({'_id': email}, {'$set': {'status': True, 'activated': True}})
 			return user.toDict()
 
 class logout(Resource):
@@ -140,6 +137,14 @@ class changePassword(Resource):
 			time = content['time']
 			user.changePassword(newPassword = newPassword, time = time)
 			return {'SUCCESS': 'Password changed'}
+
+class changeUserName(Resource):
+	@login_required
+	def post(self):
+		content = json.loads(json.dumps(request.get_json(force = True)))
+		name = content['username']
+		current_user.changeUsername(name = name)
+		return {'SUCCESS': 'Username Changed'}
 
 class locations(Resource):
 	def get(self):
@@ -174,11 +179,12 @@ api.add_resource(parseNews, '/api/details')
 api.add_resource(parseAllPage, '/api/news/')
 api.add_resource(parsePage,'/api/news/<string:source>')
 api.add_resource(getThumbnail, '/api/thumbnails')
+api.add_resource(locations, '/api/locations')
 api.add_resource(register, '/register')
 api.add_resource(login, '/login')
-api.add_resource(changePassword, '/uManage/password')
-api.add_resource(locations, '/api/locations')
 api.add_resource(logout, '/logout')
+api.add_resource(changePassword, '/uManage/password')
+api.add_resource(changeUserName, '/uManage/username')
 
 if __name__ == '__main__':
 	app.run()
