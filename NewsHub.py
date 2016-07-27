@@ -47,7 +47,7 @@ class parseAllPage(Resource):
 	def get(self):
 		page = 1 if not 'page' in request.headers else int(request.headers['page'])
 		location = 'halifax' if not 'location' in request.headers else request.headers['location']
-		headlines = mongo.db.headlines.find({'or': [{'location': location}, {'source': 'chronicle'}]}) if page == 1 else None
+		headlines = mongo.db.headlines.find({'$or': [{'location': location}, {'source': 'chronicle'}]}) if page == 1 else None
 		normal = mongo.db.normal.find({'location': location}).sort([('tag', 1)]).limit(15).skip((page - 1) * 15)
 		return {'headlines': headlines, 'normal': normal}
 
