@@ -213,14 +213,11 @@ class like(Resource):
 	def post(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
-		user = mongo.db.User.find({'_id': current_user.email}, {'liked': 1, '_id': 0})
-		if user.count() > 0:
-			user = user[0]
-			if newsurl in user.liked:
-				return {"SUCCESS": "Liked"}
+		result = mongo.db.Users.find({'_id': current_user.email, 'liked._id': newsurl})
+		if result.count() > 0:
+			return {"SUCCESS": "Liked"}
 		else:
 			return {"ERROR": 'Not Liked'}
-	
 
 api.add_resource(index,'/')
 api.add_resource(parseNews, '/api/details')
