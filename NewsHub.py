@@ -178,7 +178,7 @@ class like(Resource):
 		userID = current_user.email
 		result = mongo.db.Users.find({'_id': userID}, {'liked': 1, '_id': 0})
 		if result.count() > 0:
-			return {'SUCCESS': result}
+			return {'SUCCESS': result[0]}
 		return {'ERROR': 'No news is liked'}
 
 	@login_required
