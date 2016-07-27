@@ -87,18 +87,18 @@
   Headers: <br>
   Response: {'location': []}<br>
   <br>
-  **Like a news:**<br>
+  **Like/Unlike a news:**<br>
   Method: GET, PUT, POST<br>
   Address: https://hubnews.herokuapp.com/api/likes<br>
   Parameters: {'url': ''}<br>
   Headers:<br>
   Response:<br>
   &nbsp;&nbsp;GET:<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;{'SUCCESS': {'likes': ['_id': '', 'img': '', 'title': '']}}<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;{'SUCCESS': ['_id': '', 'img': '', 'title': '']}<br>
   &nbsp;&nbsp;&nbsp;&nbsp;{'ERROR': 'INFO'}<br>
   &nbsp;&nbsp;PUT:<br>
   &nbsp;&nbsp;&nbsp;&nbsp;{'SUCCESS': 'INFO'} or {'ERROR': 'INFO'}<br>
-  &nbsp;&nbsp;POST:(Unlike)<br>
+  &nbsp;&nbsp;POST:(Check news liked or not)<br>
   &nbsp;&nbsp;&nbsp;&nbsp;{'SUCCESS': 'INFO'} or {'ERROR': 'INFP'}<br>
   <br>
 
