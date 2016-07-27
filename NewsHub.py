@@ -185,32 +185,41 @@ class like(Resource):
 	def put(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
+		result = mongo.db.Users.find({'_id': current_user.email, 'liked._id': newsurl})
+		mode = True if result.count() > 0 else False
+		increase = 1 if mode == False else -1
+		info = "News liked" if mode == False else "News unliked"
+
 		news = mongo.db.headlines.find({'_id': newsurl}, {'_id': 1, 'title': 1, 'img': 1})
 		if news.count() > 0:
-			current_user.like(news[0])
-			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {'liked': 1}})
-			return {'SUCCESS': 'News liked'}
+			if mode == False:
+				current_user.like(news[0])
+			else:
+				current_user.unlike(news[0])
+			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {'liked': increase}})
+			return {'SUCCESS': info}
 		else:
 			news = mongo.db.normal.find({'_id': newsurl}, {'_id': 1, 'title': 1, 'img': 1})
 			if news.count() > 0:
-				current_user.like(news[0])
-				mongo.db.normal.update({'_id': newsurl}, {'$inc': {'liked': 1}})
-				return {'SUCCESS': 'News liked'}
+				if mode == False:
+					current_user.like(news[0])
+				else:
+					current_user.unlike(news[0])
+				mongo.db.normal.update({'_id': newsurl}, {'$inc': {'liked': increase}})
+				return {'SUCCESS': info}
 		return {'ERROR': 'Unable to find the news'}
 
 	@login_required
 	def post(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
-		mongo.db.Users.update({'_id': current_user.email}, {'$pull': {'liked': {'_id': newsurl}}})
-		news = mongo.db.headlines.find({'_id': newsurl})
-		if news.count() > 0:
-			mongo.db.headlines.update({'_id':newsurl}, {'$inc': {'liked': -1}})
-			return {'SUCCESS': 'Removed the news from liked'}
+		user = mongo.db.User.find({'_id': current_user.email}, {'liked': 1, '_id': 0})
+		if user.count() > 0:
+			user = user[0]
+			if newsurl in user.liked:
+				return {"SUCCESS": "Liked"}
 		else:
-			mongo.db.normal.update({'_id':newsurl}, {'$inc': {'liked': -1}})
-			return {'SUCCESS': 'Removed the news from liked'}
-		return {'ERROR': 'Cannot find the news'}
+			return {"ERROR": 'Not Liked'}
 	
 
 api.add_resource(index,'/')
