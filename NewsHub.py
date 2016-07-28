@@ -189,13 +189,12 @@ class like(Resource):
 		mode = True if result.count() > 0 else False
 		increase = 1 if mode == False else -1
 		info = "News liked" if mode == False else "News unliked"
-
 		news = mongo.db.headlines.find({'_id': newsurl})
 		if news.count() > 0:
 			if mode == False:
 				current_user.like(news[0])
 			else:
-				current_user.unlike(news)
+				current_user.unlike(news[0])
 			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {'liked': increase}})
 			return {'SUCCESS': info}
 		else:
@@ -204,7 +203,7 @@ class like(Resource):
 				if mode == False:
 					current_user.like(news[0])
 				else:
-					current_user.unlike(news)
+					current_user.unlike(news[0])
 				mongo.db.normal.update({'_id': newsurl}, {'$inc': {'liked': increase}})
 				return {'SUCCESS': info}
 		return {'ERROR': 'Unable to find the news'}
