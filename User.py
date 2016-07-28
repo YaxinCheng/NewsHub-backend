@@ -47,7 +47,8 @@ class User:
 	def unlike(self, news):
 		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		mongodb.Users.update({'_id': self.email}, {'$pull': {'liked': news}})
+		for each in news:
+			mongodb.Users.update({'_id': self.email}, {'$pull': {'liked': each}})
 		client.close()
 
 	@staticmethod
