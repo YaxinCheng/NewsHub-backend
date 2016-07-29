@@ -176,43 +176,41 @@ class like(Resource):
 	@login_required
 	def get(self):
 		userID = current_user.email
-		result = mongo.db.Users.find({'_id': userID}, {'liked': 1, '_id': 0})
+		result = mongo.db.Users.find({'_id': userID}, {'reacted': 1, '_id': 0})
 		if result.count() > 0:
-			return {'SUCCESS': result[0]["liked"]}
+			return {'SUCCESS': result[0]["reacted"]}
 		return {'ERROR': 'No news is liked'}
 
 	@login_required
 	def put(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
-		result = mongo.db.Users.find({'_id': current_user.email, 'liked._id': newsurl})
-		mode = True if result.count() > 0 else False
-		increase = 1 if mode == False else -1
-		info = "News liked" if mode == False else "News unliked"
+		emotion = JSON['emotion']
+		result = mongo.db.Users.find({'_id': current_user.email, 'reacted.news._id': newsurl})
+		increase = -1 if result.count() > 0 else 1
+		unreactMode = True if result.count() > 0 else False
+		info = "News liked" if unreactMode == False else "News unliked"
+
 		news = mongo.db.headlines.find({'_id': newsurl})
 		if news.count() > 0:
-			if mode == False:
-				current_user.like(news[0])
-			else:
-				current_user.unlike(news[0])
-			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {'liked': increase}})
-			return {'SUCCESS': info}
+			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {emotion: increase}})
 		else:
 			news = mongo.db.normal.find({'_id': newsurl})
 			if news.count() > 0:
-				if mode == False:
-					current_user.like(news[0])
-				else:
-					current_user.unlike(news[0])
-				mongo.db.normal.update({'_id': newsurl}, {'$inc': {'liked': increase}})
-				return {'SUCCESS': info}
-		return {'ERROR': 'Unable to find the news'}
+				mongo.db.normal.update({'_id': newsurl}, {'$inc': {emotion: increase}})
+			else:
+				return {'ERROR': 'Unable to find the news'}
+		if unreactMode == True:
+			current_user.unreact(news[0], emotion)
+		else:
+			current_user.react(news[0], emotion)
+		return {'SUCCESS': info}
 
 	@login_required
 	def post(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
-		result = mongo.db.Users.find({'_id': current_user.email, 'liked._id': newsurl})
+		result = mongo.db.Users.find({'_id': current_user.email, 'reacted._id': newsurl})
 		if result.count() > 0:
 			return {"SUCCESS": "Liked"}
 		else:

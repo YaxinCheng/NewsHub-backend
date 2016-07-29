@@ -38,16 +38,16 @@ class User:
 		mongodb.Users.update({'_id': self.email}, {'$set': {'name': name}})
 		client.close()
 
-	def like(self, news):
+	def react(self, news, emotion):
 		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		mongodb.Users.update({'_id': self.email}, {'$addToSet': {'liked': news}})
+		mongodb.Users.update({'_id': self.email}, {'$addToSet': {'reacted': {'news': news, 'emotion': emotion}}})
 		client.close()
 
-	def unlike(self, news):
+	def unreact(self, news, emotion):
 		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		mongodb.Users.update({'_id': self.email}, {'$pull': {'liked': news}})
+		mongodb.Users.update({'_id': self.email}, {'$pull': {'reacted': {'news': news, 'emotion': emotion}}})
 		client.close()
 
 	@staticmethod
