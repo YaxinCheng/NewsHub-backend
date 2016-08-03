@@ -186,7 +186,7 @@ class like(Resource):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
 		emotion = JSON['emotion']
-		result = mongo.db.Users.find({'_id': current_user.email, 'reacted.news._id': newsurl})
+		result = mongo.db.Users.find({'_id': current_user.email, 'reacted._id': newsurl})
 		increase = -1 if result.count() > 0 else 1
 		unreactMode = True if result.count() > 0 else False
 		info = "News liked" if unreactMode == False else "News unliked"
@@ -201,7 +201,7 @@ class like(Resource):
 			else:
 				return {'ERROR': 'Unable to find the news'}
 		if unreactMode == True:
-			current_user.unreact(news[0], emotion)
+			current_user.unreact(news[0])
 		else:
 			current_user.react(news[0], emotion)
 		return {'SUCCESS': info}
@@ -210,7 +210,7 @@ class like(Resource):
 	def post(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
-		result = mongo.db.Users.find({'_id': current_user.email, 'reacted.news._id': newsurl}, {'_id': 0, 'reacted': 1})
+		result = mongo.db.Users.find({'_id': current_user.email, 'reacted._id': newsurl}, {'_id': 0, 'reacted': 1})
 		if result.count() > 0:
 			result = result[0]['reacted'][0]
 			return {"SUCCESS": result['emotion']}
