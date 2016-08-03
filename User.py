@@ -41,13 +41,14 @@ class User:
 	def react(self, news, emotion):
 		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		mongodb.Users.update({'_id': self.email}, {'$addToSet': {'reacted': {'news': news, 'emotion': emotion}}})
+		news['emotion'] = emotion
+		mongodb.Users.update({'_id': self.email}, {'$addToSet': {'reacted': news}})
 		client.close()
 
-	def unreact(self, news, emotion):
+	def unreact(self, news):
 		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
-		mongodb.Users.update({'_id': self.email}, {'$pull': {'reacted': {'news': news, 'emotion': emotion}}})
+		mongodb.Users.update({'_id': self.email}, {'$pull': {'reacted': {'_id' : news['_id']}}})
 		client.close()
 
 	@staticmethod
