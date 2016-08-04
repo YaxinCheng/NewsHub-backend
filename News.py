@@ -1,3 +1,5 @@
+from pymongo import MongoClient
+
 class News:
 	def __init__(self, title, source, url, location, date = '', content = '', img = ''):
 		self.title = title
@@ -43,3 +45,28 @@ class News:
 		if tag in replaceWords:
 			return replaceWords[tag]
 		return tag
+
+	@staticmethod
+	def newsFromBSON(bson):
+		news = News(bson['title'], bson['source'], bson['_id'], bson['location'])
+		try:
+			news.tag = bson['tag']
+			news.img = bson['img']
+			news.content = bson['content']
+			news.date = bson['date']
+		except:
+			pass
+		return news
+
+	@staticmethod
+	def newsFromURL(url):
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
+		mongodb = client.heroku_gfp8zr4k
+		news = mongodb.headlines.find({'_id': url})
+		if news.count() > 0:
+			return newsFromBSON(news[0])
+		else:
+			news = mongodb.normal.find({'_id': url})
+			if news.count > 0:
+				return newsFromBSON(news[0])
+			return None

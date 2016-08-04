@@ -187,17 +187,28 @@ class like(Resource):
 		newsurl = JSON['url']
 		emotion = JSON['emotion']
 		result = mongo.db.Users.find({'_id': current_user.email, 'reacted._id': newsurl})
-		increase = -1 if result.count() > 0 else 1
-		unreactMode = True if result.count() > 0 else False
-		info = "News liked" if unreactMode == False else "News unliked"
+		unreactMode = False
+		if result.count() > 0:
+			if emotion == 'unreact':
+				unreactMode = True
+			reactedEmotion = result[0]['reacted'][0]['emotion']
+		else:
+			if emotion == 'unreact':
+				return {'ERROR': 'News not found'}
+			reactedEmotion = None
+		info = "News reacted" if unreactMode == False else "News unreacted"
 
 		news = mongo.db.headlines.find({'_id': newsurl})
 		if news.count() > 0:
-			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {emotion: increase}})
+			if not reactedEmotion is None:
+				mongo.db.headlines.update({'_id': newsurl}, {'$inc': {reactedEmotion: -1}})	
+			mongo.db.headlines.update({'_id': newsurl}, {'$inc': {emotion: 1}})
 		else:
 			news = mongo.db.normal.find({'_id': newsurl})
 			if news.count() > 0:
-				mongo.db.normal.update({'_id': newsurl}, {'$inc': {emotion: increase}})
+				if not reactedEmotion is None:
+					mongo.db.headlines.update({'_id': newsurl}, {'$inc': {reactedEmotion: -1}})	
+				mongo.db.normal.update({'_id': newsurl}, {'$inc': {emotion: 1}})
 			else:
 				return {'ERROR': 'Unable to find the news'}
 		if unreactMode == True:
