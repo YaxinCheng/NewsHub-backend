@@ -221,8 +221,9 @@ class like(Resource):
 	def post(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
-		result = mongo.db.Users.find({'_id': current_user.email, 'reacted._id': newsurl}, {'_id': 0, 'reacted': 1})
+		result = mongo.db.Users.find({'_id': current_user.email, 'reacted': {'id': newsurl}}, {'_id': 0, 'reacted': 1})
 		if result.count() > 0:
+			print(result[0])
 			result = result[0]['reacted'][0]
 			return {"SUCCESS": result['emotion']}
 		else:
