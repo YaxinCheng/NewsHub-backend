@@ -174,21 +174,6 @@ class comments(Resource):
 
 class like(Resource):
 	@login_required
-	def get(self):
-		userID = current_user.email
-		result = mongo.db.Reacts.find({'user': userID, 'emotion': 'liked'}, {'news': 1, '_id': 0})
-		if result.count() <= 0:
-			return {'ERROR': 'No news is liked'}
-		ids = [ each['news'] for each in result ]
-		headlines = mongo.db.headlines.find({'_id': {'$in': ids}})
-		normal = mongo.db.normal.find({'_id': {'$in': ids}})
-		news = []
-		news = [each for each in headlines]
-		for each in normal:
-			news.append(each)
-		return {'SUCCESS': news}
-
-	@login_required
 	def put(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
