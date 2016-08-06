@@ -176,22 +176,29 @@ class like(Resource):
 	@login_required
 	def get(self):
 		userID = current_user.email
-		result = mongo.db.Users.find({'_id': userID}, {'reacted': 1, '_id': 0})
-		if result.count() > 0:
-			return {'SUCCESS': result[0]["reacted"]}
-		return {'ERROR': 'No news is liked'}
+		result = mongo.db.Reacts.find({'user': userID, 'emotion': 'liked'}, {'news': 1, '_id': 0})
+		if result.count() <= 0:
+			return {'ERROR': 'No news is liked'}
+		ids = [ each['news'] for each in result ]
+		headlines = mongo.db.headlines.find({'_id': {'$in': ids}})
+		normal = mongo.db.normal.find({'_id': {'$in': ids}})
+		news = []
+		news = [each for each in headlines]
+		for each in normal:
+			news.append(each)
+		return {'SUCCESS': news}
 
 	@login_required
 	def put(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
 		emotion = JSON['emotion']
-		result = mongo.db.Users.find({'_id': current_user.email, 'reacted._id': newsurl})
+		result = mongo.db.Reacts.find({'user': current_user.email, 'news': newsurl})
 		unreactMode = False
 		if result.count() > 0:
 			if emotion == 'unreact':
 				unreactMode = True
-			reactedEmotion = result[0]['reacted'][0]['emotion']
+			reactedEmotion = result[0]['emotion']
 		else:
 			if emotion == 'unreact':
 				return {'ERROR': 'News not found'}
@@ -221,7 +228,8 @@ class like(Resource):
 	def post(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
 		newsurl = JSON['url']
-		result = mongo.db.Users.find({'_id': current_user.email, 'reacted': {'id': newsurl}}, {'_id': 0, 'reacted': 1})
+		result = mongo.db.Reacts.find({'user': current_user.email, 'news': newsurl})
+		# result = mongo.db.Users.find({'_id': current_user.email, 'reacted._id': newsurl})
 		if result.count() > 0:
 			print(result[0])
 			result = result[0]['reacted'][0]
