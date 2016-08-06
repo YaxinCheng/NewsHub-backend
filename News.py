@@ -60,7 +60,7 @@ class News:
 
 	@staticmethod
 	def newsFromURL(url):
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		news = mongodb.headlines.find({'_id': url})
 		if news.count() > 0:

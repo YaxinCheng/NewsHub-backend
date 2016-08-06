@@ -27,19 +27,19 @@ class User:
 		passwordHash = hashlib.sha256()
 		passwordHash.update((self.email + time + newPassword).encode('UTF-8'))
 		password = passwordHash.hexdigest()
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		mongodb.Users.update({'_id': userDict['_id']}, {'$set': {'password': password}})
 		client.close()
 
 	def changeUsername(self, name):
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		mongodb.Users.update({'_id': self.email}, {'$set': {'name': name}})
 		client.close()
 
 	def react(self, news, emotion):
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		self.unreact(news)
 		news['emotion'] = emotion
@@ -48,7 +48,7 @@ class User:
 		client.close()
 
 	def unreact(self, news):
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		mongodb.Reacts.delete_many({'news': news['_id'], 'user': self.email})
 		# mongodb.Users.update({'_id': self.email}, {'$pull': {'reacted': {'_id' : news['_id']}}})
@@ -56,7 +56,7 @@ class User:
 
 	@staticmethod
 	def register(email, name, password, registerTime):
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		result = mongodb.Users.find({'_id': email})
 		if result.count() > 0:
@@ -76,7 +76,7 @@ class User:
 
 	@staticmethod
 	def get(user_id):
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		result = mongodb.Users.find({'_id': user_id}, {'registerTime': 0, 'password': 0})
 		client.close()
@@ -85,7 +85,7 @@ class User:
 
 	@staticmethod
 	def validate(user_id, password):
-		client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+		client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 		mongodb = client.heroku_gfp8zr4k
 		result = mongodb.Users.find({'_id': user_id}, {'_id': 1, 'password': 1, 'registerTime': 1})
 		client.close()

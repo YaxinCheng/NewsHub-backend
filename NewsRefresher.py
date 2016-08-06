@@ -16,7 +16,7 @@ sched = BlockingScheduler()
 
 @sched.scheduled_job('interval', hours = 2)
 def refresh_news():
-	client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+	client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 	db = client.heroku_gfp8zr4k
 	db.images.drop()
 	headlines = []
@@ -41,7 +41,7 @@ def refresh_news():
 
 @sched.scheduled_job('cron', day_of_week = 'fri', hour = 17)
 def remove_news_caches():
-	client = MongoClient('mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k')
+	client = MongoClient('mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k')
 	db = client.heroku_gfp8zr4k
 	db.details.drop()
 	client.close()

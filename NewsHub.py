@@ -22,13 +22,13 @@ DEFAULT_REPRESENTATIONS = {'application/json': output_json}
 
 app = Flask(__name__)
 
-app.secret_key = '***REMOVED***'
+app.secret_key = 'heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 MONGO_URI = os.environ.get('MONGO_URL')
 if not MONGO_URI:
-	MONGO_URI = "mongodb://***REMOVED***.mlab.com:15335/heroku_gfp8zr4k"
+	MONGO_URI = "mongodb://heroku_gfp8zr4k:mu22sv8pm9q3b5o286vfjjq870@ds015335.mlab.com:15335/heroku_gfp8zr4k"
 
 app.config['MONGO_URI'] = MONGO_URI
 mongo = PyMongo(app)
@@ -173,21 +173,6 @@ class comments(Resource):
 		return {'SUCCESS': 'New Comment Updated'}
 
 class like(Resource):
-	@login_required
-	def get(self):
-		userID = current_user.email
-		result = mongo.db.Reacts.find({'user': userID, 'emotion': 'liked'}, {'news': 1, '_id': 0})
-		if result.count() <= 0:
-			return {'ERROR': 'No news is liked'}
-		ids = [ each['news'] for each in result ]
-		headlines = mongo.db.headlines.find({'_id': {'$in': ids}})
-		normal = mongo.db.normal.find({'_id': {'$in': ids}})
-		news = []
-		news = [each for each in headlines]
-		for each in normal:
-			news.append(each)
-		return {'SUCCESS': news}
-
 	@login_required
 	def put(self):
 		JSON = json.loads(json.dumps(request.get_json(force = True)))
